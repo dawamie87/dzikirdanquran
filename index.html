@@ -3,786 +3,681 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#047857">
-    <meta name="description" content="Aplikasi Dzikir, Doa, dan Al-Quran Digital">
+    <meta name="theme-color" content="#059669">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Dzikir & Doa Qurani</title>
     
-    <title>Dzikir & Doa Pro</title>
-
+    <!-- Fonts: Inter (UI) & Amiri (Arabic) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <style>
-        /* Setup Font LPMQ Standar Kemenag */
-        @font-face {
-            font-family: 'LPMQ Isep Misbah';
-            src: url('https://raw.githubusercontent.com/dawamie87/Zikir-dan-Doa-Qur-ani/main/LPMQ_IsepMisbah.ttf') format('truetype');
-            font-display: swap;
-        }
-
-        :root {
-            --primary: #047857; 
-            --font-arabic: 'LPMQ Isep Misbah', serif;
-            --scale-arabic: 1;
-            --scale-translation: 1;
-        }
-
-        /* Base Styles */
-        body { 
-            font-family: 'Inter', sans-serif; 
-            transition: background-color 0.3s, color 0.3s; 
-            -webkit-tap-highlight-color: transparent; 
-            overscroll-behavior-y: none;
-            touch-action: pan-y;
-        }
-        
-        /* Dark Mode Styling */
-        body.dark-mode { background-color: #0f172a; color: #f1f5f9; }
-        .dark-mode #app-root { background-color: #0f172a; border-color: #1e293b; }
-        .dark-mode .bg-white { background-color: #1e293b !important; }
-        .dark-mode .bg-slate-50 { background-color: #0f172a !important; }
-        .dark-mode .bg-slate-100 { background-color: #334155 !important; }
-        .dark-mode .bg-slate-900 { background-color: #020617 !important; }
-        .dark-mode .text-slate-800 { color: #f1f5f9 !important; }
-        .dark-mode .text-slate-700 { color: #e2e8f0 !important; }
-        .dark-mode .text-slate-600 { color: #cbd5e1 !important; }
-        .dark-mode .text-slate-500 { color: #94a3b8 !important; }
-        .dark-mode .text-slate-400 { color: #64748b !important; }
-        .dark-mode .border-slate-100, .dark-mode .border-slate-200 { border-color: #334155 !important; }
-        .dark-mode .glass-nav { background: #1e293b; border-top: 1px solid #334155; }
-        
-        /* Typography Helper */
-        .font-arabic-dynamic {
-            font-family: var(--font-arabic);
-            line-height: 2.2;
-            font-weight: normal;
-            font-size: calc(1.8rem * var(--scale-arabic));
-        }
-        .font-arabic-title {
-            font-family: var(--font-arabic);
-            line-height: 1.5;
-        }
-        .font-translation-dynamic {
-            font-size: calc(0.9rem * var(--scale-translation));
-        }
-
-        /* Navigasi Fixed Bottom */
-        .glass-nav {
-            background: #ffffff;
-            border-top: 1px solid #f1f5f9;
-            padding-bottom: env(safe-area-inset-bottom);
-            box-shadow: 0 -1px 3px rgba(0,0,0,0.05);
-        }
-
-        /* Hide Scrollbar */
-        .hide-scroll::-webkit-scrollbar { display: none; }
-        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Animations */
-        @keyframes bead-slide {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(20px); }
-            100% { transform: translateY(0); }
-        }
-        .bead-active { animation: bead-slide 0.3s ease-in-out; }
-
-        .modal-transition { transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1); }
-        .modal-open { transform: translateY(0) !important; }
-
-        .progress-ring__circle {
-            transition: stroke-dashoffset 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
-        }
-
-        @media (min-width: 768px) {
-            body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background-color: #f1f5f9; }
-        }
-    </style>
-</head>
-<body class="light-mode selection:bg-emerald-200 selection:text-emerald-900">
-
-    <main id="app-root" class="w-full h-[100dvh] bg-white shadow-2xl overflow-hidden relative flex flex-col
-        md:h-[90vh] md:w-[420px] md:rounded-[3rem] md:border-[8px] md:border-white">
-        <!-- Content injected via JS -->
-    </main>
-
-    <!-- Global Toast -->
-    <div id="toast" class="fixed bottom-28 left-1/2 -translate-x-1/2 bg-slate-900/90 text-white px-5 py-3 rounded-full text-xs font-medium shadow-2xl opacity-0 transition-all pointer-events-none z-50 backdrop-blur-md flex items-center gap-2 translate-y-4">
-        <i class="fa-solid fa-circle-check text-emerald-400"></i>
-        <span id="toast-msg">Notifikasi</span>
-    </div>
-
-    <!-- Modal Overlay -->
-    <div id="modal-overlay" onclick="closeModals()" class="fixed inset-0 bg-black/40 z-40 hidden opacity-0 transition-opacity backdrop-blur-[2px]"></div>
-
-    <!-- SETTINGS MODAL -->
-    <div id="settings-modal" class="fixed bottom-0 left-0 right-0 bg-white rounded-t-[2.5rem] z-50 p-8 transform translate-y-full modal-transition md:max-w-[420px] md:mx-auto shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-        <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
-        <h3 class="text-xl font-bold mb-8 text-slate-800 flex items-center gap-3">
-            <i class="fa-solid fa-sliders text-emerald-600"></i> Pengaturan Tampilan
-        </h3>
-        <div class="space-y-8">
-            <div>
-                <div class="flex justify-between mb-3">
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ukuran Huruf Arab</label>
-                    <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">LPMQ</span>
-                </div>
-                <input type="range" min="0.8" max="2.0" step="0.1" value="1" id="scale-ar" class="w-full accent-emerald-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer">
-            </div>
-            <div>
-                <div class="flex justify-between mb-3">
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ukuran Terjemahan</label>
-                    <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">Latin</span>
-                </div>
-                <input type="range" min="0.8" max="1.4" step="0.1" value="1" id="scale-tr" class="w-full accent-emerald-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer">
-            </div>
-        </div>
-        <button onclick="closeModals()" class="w-full mt-10 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold shadow-lg shadow-emerald-200 active:scale-[0.98] transition-all">Simpan</button>
-    </div>
-
-    <!-- SUPPORT MODAL -->
-    <div id="support-modal" class="fixed bottom-0 left-0 right-0 bg-white rounded-t-[2.5rem] z-50 p-8 transform translate-y-full modal-transition md:max-w-[420px] md:mx-auto text-center shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-        <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
-        <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center text-2xl mx-auto mb-4 shadow-inner"><i class="fa-solid fa-mug-hot"></i></div>
-        <h3 class="text-xl font-bold text-slate-800 mb-2">Traktir Kopi</h3>
-        <p class="text-sm text-slate-500 mb-6 leading-relaxed">Dukungan Anda membantu kami menjaga aplikasi ini tetap gratis dan bebas iklan.</p>
-        <div class="bg-slate-50 border border-slate-200 rounded-3xl p-5 mb-6 relative overflow-hidden text-left">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-emerald-600 uppercase tracking-wide">BCA</span>
-                <i class="fa-solid fa-building-columns text-slate-300"></i>
-            </div>
-            <div class="flex items-center justify-between gap-3">
-                <span class="text-xl font-mono font-bold text-slate-700 tracking-wide">676030548</span>
-                <button onclick="copyToClipboard('676030548')" class="w-8 h-8 rounded-full bg-white shadow-sm text-emerald-600 flex items-center justify-center hover:bg-emerald-50 active:scale-90 transition-transform"><i class="fa-solid fa-copy text-xs"></i></button>
-            </div>
-            <p class="text-xs font-medium text-slate-400 mt-1">A.N. Ahmad Dawami</p>
-        </div>
-        <button onclick="closeModals()" class="w-full py-3.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-2xl font-bold transition-colors text-sm">Tutup</button>
-    </div>
-
+    <!-- Configuration -->
     <script>
-        /** STATE & CONFIG */
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8J1hsT-Nb9eBOwDWkPG9Iff6d6Vb9lThA0RjIioCorPRpD3A5oYQ8fIjgXcjQ8J8fAw/exec";
-        const QURAN_API = "https://equran.id/api/v2/surat";
-        
-        let DB = { dzikirPagi: [], dzikirPetang: [], doaHarian: [], dzikirShalat: [], doaQurani: [], bacaanShalat: [] };
-        
-        const AppState = { 
-            view: 'home', 
-            category: '', 
-            index: 0, 
-            search: '', 
-            darkMode: false,
-            prayerTimes: null,
-            location: 'Menentukan Lokasi...',
-            surahs: [],
-            currentSurah: null,
-            loading: false,
-            audio: null,
-            fullDateString: ''
-        };
-
-        /** INITIALIZATION */
-        function initApp() {
-            const savedDark = localStorage.getItem('dark-mode') === 'true';
-            if(savedDark) { AppState.darkMode = true; document.body.classList.add('dark-mode'); }
-            
-            // Setup Settings Listeners
-            document.getElementById('scale-ar').addEventListener('input', e => document.documentElement.style.setProperty('--scale-arabic', e.target.value));
-            document.getElementById('scale-tr').addEventListener('input', e => document.documentElement.style.setProperty('--scale-translation', e.target.value));
-
-            // Setup Tanggal: Hijri | Gregorian
-            const date = new Date();
-            const hijri = new Intl.DateTimeFormat('id-ID-u-ca-islamic', {day: 'numeric', month: 'long', year: 'numeric'}).format(date);
-            const greg = date.toLocaleDateString('id-ID', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'});
-            AppState.fullDateString = `${hijri} H | ${greg}`;
-
-            fetchData();
-            fetchPrayerTimes();
-            render();
-        }
-
-        async function fetchData() {
-            try {
-                const res = await fetch(SCRIPT_URL);
-                const json = await res.json();
-                const map = { 'judul': 'title', 'arab': 'arabic', 'teks': 'arabic', 'latin': 'latin', 'terjemah': 'translation', 'jumlah': 'count', 'faedah': 'faedah' };
-                Object.keys(json).forEach(k => {
-                    DB[k] = json[k].map(i => {
-                        const n = {}; Object.keys(i).forEach(key => n[map[key.toLowerCase()] || key.toLowerCase()] = i[key]);
-                        n.count = parseInt(n.count) || 1;
-                        return n;
-                    });
-                });
-                if(AppState.view === 'home') render();
-            } catch (e) { showToast("Gagal memuat database"); }
-        }
-
-        /** NAVIGATION LOGIC */
-        function navigateTo(view, category = '') {
-            stopAudio();
-            AppState.view = view;
-            if (category) {
-                AppState.category = category;
-                AppState.index = 0;
-            }
-            if (view === 'quran' && AppState.surahs.length === 0) fetchSurahs();
-            render();
-        }
-
-        function toggleDarkMode() {
-            AppState.darkMode = !AppState.darkMode;
-            document.body.classList.toggle('dark-mode', AppState.darkMode);
-            localStorage.setItem('dark-mode', AppState.darkMode);
-            render();
-        }
-
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = msg;
-            t.classList.replace('opacity-0', 'opacity-100');
-            t.classList.replace('translate-y-4', 'translate-y-0');
-            setTimeout(() => {
-                t.classList.replace('opacity-100', 'opacity-0');
-                t.classList.replace('translate-y-0', 'translate-y-4');
-            }, 2500);
-        }
-
-        function copyToClipboard(text) {
-            const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
-            showToast("Teks berhasil disalin");
-        }
-
-        function openModal(id) {
-            document.getElementById('modal-overlay').classList.remove('hidden');
-            setTimeout(() => document.getElementById('modal-overlay').classList.add('opacity-100'), 10);
-            document.getElementById(id).classList.add('modal-open');
-        }
-
-        function closeModals() {
-            document.getElementById('modal-overlay').classList.remove('opacity-100');
-            document.querySelectorAll('.modal-transition').forEach(m => m.classList.remove('modal-open'));
-            setTimeout(() => document.getElementById('modal-overlay').classList.add('hidden'), 300);
-        }
-
-        /** GESTURE LOGIC (UNIFIED) */
-        let touchstartX = 0;
-        let touchstartY = 0;
-        let touchendX = 0;
-        let touchendY = 0;
-
-        function handleTouchStart(e) {
-            touchstartX = e.changedTouches[0].screenX;
-            touchstartY = e.changedTouches[0].screenY;
-        }
-
-        function handleTouchEnd(e) {
-            touchendX = e.changedTouches[0].screenX;
-            touchendY = e.changedTouches[0].screenY;
-            handleGesture(e.target);
-        }
-
-        function handleGesture(target) {
-            const diffX = touchendX - touchstartX;
-            const diffY = touchendY - touchstartY;
-
-            // Horizontal Swipe (Navigasi Kiri/Kanan)
-            if (Math.abs(diffX) > Math.abs(diffY)) {
-                if (Math.abs(diffX) > 50) { // Threshold
-                    // Cek jika sedang di mode detail/dzikir
-                    if (AppState.view === 'detail' || AppState.view === 'fav') {
-                        const data = AppState.view === 'fav' ? getFavs() : DB[AppState.category];
-                        if (diffX > 0 && AppState.index > 0) {
-                            // Swipe Right -> Prev
-                            AppState.index--;
-                            render();
-                        } else if (diffX < 0 && AppState.index < data.length - 1) {
-                            // Swipe Left -> Next
-                            AppState.index++;
-                            render();
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        arabic: ['Amiri', 'serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'pulse-short': 'pulseShort 0.2s ease-in-out',
+                        'pop': 'pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        pulseShort: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(0.95)' },
+                        },
+                        pop: {
+                            '0%': { transform: 'scale(0.5)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
                         }
                     }
                 }
-            } 
-            // Vertical Swipe (Untuk Tasbih)
-            else {
-                if (diffY > 50) { // Swipe Down
-                     // Cek jika target ada di dalam area tasbih
-                     const tasbihArea = document.getElementById('tasbih-interaction-area');
-                     if (tasbihArea && (tasbihArea.contains(target) || target.id === 'tasbih-interaction-area')) {
-                        handleTasbihCount();
-                     }
-                }
             }
         }
+    </script>
 
-        function handleTasbihCount() {
-            const data = AppState.view === 'fav' ? getFavs() : DB[AppState.category];
-            const item = data[AppState.index];
-            if (item.currentCount === undefined) item.currentCount = item.count;
+    <style>
+        /* Custom Scrollbar Hide */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Islamic Pattern Background */
+        .bg-islamic {
+            background-color: #f9fafb;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23059669' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* Arabic Text Adjustments */
+        .arabic-text {
+            line-height: 2.2;
+            direction: rtl;
+        }
+
+        /* Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none; 
+            background: transparent; 
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #059669;
+            margin-top: -8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: #d1fae5;
+            border-radius: 2px;
+        }
+
+        /* App Container for Desktop View */
+        body {
+            background-color: #e5e7eb; /* Gray for desktop background */
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        #app-container {
+            width: 100%;
+            max-width: 480px;
+            height: 100vh; /* Fallback */
+            height: 100dvh; /* Dynamic Viewport Height */
+            background-color: white;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body class="font-sans text-gray-800">
+
+    <!-- App Container -->
+    <div id="app-container" class="bg-islamic">
+        
+        <!-- HEADER -->
+        <header class="bg-emerald-600 text-white p-6 pb-12 rounded-b-[2rem] shadow-lg relative z-10 transition-all duration-300" id="main-header">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-moon text-yellow-300 text-xl"></i>
+                    <h1 class="font-bold text-xl tracking-tight">DzikirApp</h1>
+                </div>
+                <button onclick="toggleSettings()" class="w-10 h-10 rounded-full bg-emerald-700 hover:bg-emerald-800 flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
             
-            if (item.currentCount > 0) {
-                item.currentCount--;
-                if (window.navigator.vibrate) window.navigator.vibrate(30);
+            <div id="greeting-section" class="animate-fade-in">
+                <p id="greeting-text" class="text-emerald-100 text-sm font-medium mb-1">Assalamu'alaikum</p>
+                <h2 id="hijri-date" class="text-2xl font-bold leading-tight">Memuat Tanggal...</h2>
+                <div class="mt-4 bg-emerald-700/50 backdrop-blur-sm p-3 rounded-xl border border-emerald-500/30 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-emerald-200">Shalat Berikutnya</p>
+                        <p id="next-prayer-name" class="font-bold text-lg">...</p>
+                    </div>
+                    <div class="text-right">
+                        <p id="next-prayer-time" class="font-mono text-xl font-bold">--:--</p>
+                        <p id="location-name" class="text-[10px] text-emerald-200"><i class="fa-solid fa-location-dot mr-1"></i>Lokasi...</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT AREA (Scrollable) -->
+        <main id="main-content" class="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar relative -mt-8 pt-10 px-4 pb-24">
+            
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="space-y-6 animate-fade-in">
                 
-                const bead = document.getElementById('tasbih-bead');
-                if(bead) {
-                    bead.classList.remove('bead-active');
-                    void bead.offsetWidth; // trigger reflow
-                    bead.classList.add('bead-active');
-                }
-
-                updateProgressRing(item.currentCount, item.count);
-                const counterEl = document.getElementById('counter-display');
-                if(counterEl) counterEl.innerText = item.currentCount;
-
-                if(item.currentCount === 0) {
-                    showToast("Target tercapai! Alhamdulillah");
-                    if(window.navigator.vibrate) window.navigator.vibrate([100, 50, 100]);
-                    render();
-                }
-            }
-        }
-
-        function updateProgressRing(current, total) {
-            const circle = document.querySelector('.progress-ring__circle');
-            if(!circle) return;
-            const radius = circle.r.baseVal.value;
-            const circumference = radius * 2 * Math.PI;
-            const offset = circumference - ((total - current) / total) * circumference;
-            circle.style.strokeDashoffset = offset;
-        }
-
-        function resetTasbih() {
-            const data = AppState.view === 'fav' ? getFavs() : DB[AppState.category];
-            data[AppState.index].currentCount = data[AppState.index].count;
-            render();
-        }
-
-        function getFavs() { return JSON.parse(localStorage.getItem('dzikir_favs') || "[]"); }
-        function toggleFav(item) {
-            let favs = getFavs();
-            const exists = favs.some(f => f.arabic === item.arabic);
-            favs = exists ? favs.filter(f => f.arabic !== item.arabic) : [...favs, item];
-            localStorage.setItem('dzikir_favs', JSON.stringify(favs));
-            showToast(exists ? "Dihapus dari Favorit" : "Disimpan ke Favorit");
-            render();
-        }
-
-        /** DATA FETCHING (PRAYER & QURAN) */
-        async function fetchPrayerTimes() {
-            try {
-                if ("geolocation" in navigator) {
-                    navigator.geolocation.getCurrentPosition(async (pos) => {
-                        const { latitude, longitude } = pos.coords;
-                        const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=20`);
-                        const data = await res.json();
-                        AppState.prayerTimes = data.data.timings;
-                        AppState.location = data.data.meta.timezone.split('/')[1].replace('_', ' ');
-                        if (AppState.view === 'prayer') render();
-                    }, () => { AppState.location = "Jakarta"; }); 
-                }
-            } catch (e) { console.error(e); }
-        }
-
-        async function fetchSurahs() {
-            if (AppState.surahs.length > 0) return;
-            AppState.loading = true;
-            render();
-            try {
-                const res = await fetch(QURAN_API);
-                const data = await res.json();
-                AppState.surahs = data.data;
-            } catch (e) { showToast("Gagal memuat data"); }
-            AppState.loading = false;
-            render();
-        }
-
-        async function fetchSurahDetail(nomor) {
-            AppState.loading = true;
-            render();
-            try {
-                const res = await fetch(`${QURAN_API}/${nomor}`);
-                const data = await res.json();
-                AppState.currentSurah = data.data;
-                AppState.view = 'quran-detail';
-            } catch (e) { showToast("Gagal memuat ayat"); }
-            AppState.loading = false;
-            render();
-        }
-
-        /** AUDIO & RENDER UTILS */
-        function playAudio(url) {
-            if (AppState.audio) {
-                AppState.audio.pause();
-                if (AppState.audio.src === url) { AppState.audio = null; render(); return; }
-            }
-            AppState.audio = new Audio(url);
-            AppState.audio.play();
-            AppState.audio.onended = () => { AppState.audio = null; render(); };
-            AppState.audio.onerror = () => { showToast("Audio tidak tersedia"); AppState.audio = null; render(); };
-            render();
-        }
-
-        function stopAudio() {
-            if (AppState.audio) { AppState.audio.pause(); AppState.audio = null; }
-        }
-
-        function render() {
-            const root = document.getElementById('app-root');
-            switch(AppState.view) {
-                case 'home': root.innerHTML = renderHome(); break;
-                case 'prayer': root.innerHTML = renderPrayer(); break;
-                case 'quran': root.innerHTML = renderQuran(); break;
-                case 'quran-detail': root.innerHTML = renderQuranDetail(); break;
-                case 'detail': 
-                case 'fav': root.innerHTML = renderDetail(); break;
-                default: root.innerHTML = renderHome();
-            }
-        }
-
-        /** COMPONENTS RENDERING */
-        function renderHeader(title, { backBtn, rightBtn } = {}) {
-            return `
-                <div class="bg-white px-6 py-4 flex items-center justify-between z-30 sticky top-0 shadow-sm">
-                    <div class="flex items-center gap-4">
-                        ${backBtn ? `<button onclick="${backBtn}" class="w-9 h-9 flex items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 transition-colors"><i class="fa-solid fa-arrow-left"></i></button>` : ''}
-                        <h2 class="text-lg font-bold text-slate-800 tracking-tight line-clamp-1">${title}</h2>
-                    </div>
-                    <div class="flex gap-2">
-                        ${rightBtn || ''}
-                        <button onclick="toggleDarkMode()" class="w-9 h-9 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors">
-                            <i class="fa-solid ${AppState.darkMode ? 'fa-sun' : 'fa-moon'}"></i>
-                        </button>
-                        <button onclick="openModal('settings-modal')" class="w-9 h-9 rounded-full flex items-center justify-center text-emerald-600 bg-emerald-50 hover:bg-emerald-100 transition-colors">
-                            <i class="fa-solid fa-sliders"></i>
-                        </button>
+                <!-- Random Verse Card -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-emerald-50">
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-quran text-emerald-500 text-xl mt-1"></i>
+                        <div>
+                            <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1">Ayat Pilihan</p>
+                            <p class="text-gray-700 italic text-sm leading-relaxed" id="random-verse-text">"Maka ingatlah kepada-Ku, Aku pun akan ingat kepadamu..."</p>
+                            <p class="text-right text-xs text-emerald-600 font-bold mt-2" id="random-verse-ref">QS. Al-Baqarah: 152</p>
+                        </div>
                     </div>
                 </div>
-            `;
-        }
 
-        function renderHome() {
-            const cats = [
-                { id: 'dzikirPagi', n: 'Pagi', i: 'fa-sun', c: 'from-amber-400 to-orange-500' },
-                { id: 'dzikirPetang', n: 'Petang', i: 'fa-moon', c: 'from-indigo-400 to-purple-600' },
-                { id: 'doaHarian', n: 'Harian', i: 'fa-hands-praying', c: 'from-emerald-400 to-teal-600' },
-                { id: 'doaQurani', n: 'Qur\'an', i: 'fa-book-open', c: 'from-cyan-400 to-blue-600' },
-                { id: 'dzikirShalat', n: 'Shalat', i: 'fa-mosque', c: 'from-rose-400 to-pink-600' },
-                { id: 'bacaanShalat', n: 'Bacaan', i: 'fa-person-praying', c: 'from-blue-400 to-indigo-600' }
-            ].filter(c => c.n.toLowerCase().includes(AppState.search.toLowerCase()));
+                <!-- Menu Grid -->
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Menu Item -->
+                    <button onclick="openCategory('pagi')" class="bg-white p-4 rounded-2xl shadow-sm border border-transparent hover:border-emerald-200 transition-all active:scale-95 text-left group">
+                        <div class="w-10 h-10 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center mb-3 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                            <i class="fa-regular fa-sun text-lg"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-800">Dzikir Pagi</h3>
+                        <p class="text-xs text-gray-500">Pembuka Rezeki</p>
+                    </button>
 
-            return `
-                <div class="flex flex-col h-full bg-slate-50">
-                    <!-- Top Section (Banner) -->
-                    <div class="p-6 pb-2 bg-white rounded-b-[2rem] shadow-sm z-10">
-                        <div class="flex justify-between items-start mb-4">
+                    <button onclick="openCategory('petang')" class="bg-white p-4 rounded-2xl shadow-sm border border-transparent hover:border-emerald-200 transition-all active:scale-95 text-left group">
+                        <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-500 flex items-center justify-center mb-3 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
+                            <i class="fa-solid fa-cloud-moon text-lg"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-800">Dzikir Petang</h3>
+                        <p class="text-xs text-gray-500">Pelindung Diri</p>
+                    </button>
+
+                    <button onclick="openCategory('shalat')" class="bg-white p-4 rounded-2xl shadow-sm border border-transparent hover:border-emerald-200 transition-all active:scale-95 text-left group">
+                        <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-500 flex items-center justify-center mb-3 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                            <i class="fa-solid fa-person-praying text-lg"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-800">Dzikir Shalat</h3>
+                        <p class="text-xs text-gray-500">Setelah Fardhu</p>
+                    </button>
+
+                    <button onclick="openCategory('harian')" class="bg-white p-4 rounded-2xl shadow-sm border border-transparent hover:border-emerald-200 transition-all active:scale-95 text-left group">
+                        <div class="w-10 h-10 rounded-full bg-teal-100 text-teal-500 flex items-center justify-center mb-3 group-hover:bg-teal-500 group-hover:text-white transition-colors">
+                            <i class="fa-solid fa-hands-holding-circle text-lg"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-800">Doa Harian</h3>
+                        <p class="text-xs text-gray-500">Aktivitas Sehari-hari</p>
+                    </button>
+                    
+                     <button onclick="openCategory('favorit')" class="col-span-2 bg-gradient-to-r from-emerald-500 to-teal-500 p-4 rounded-2xl shadow-md text-white text-left active:scale-95 transition-transform relative overflow-hidden">
+                        <div class="absolute right-0 bottom-0 opacity-20 transform translate-x-2 translate-y-2">
+                             <i class="fa-solid fa-heart text-6xl"></i>
+                        </div>
+                        <div class="relative z-10 flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                                <i class="fa-solid fa-bookmark text-white"></i>
+                            </div>
                             <div>
-                                <h1 class="text-xl font-bold text-slate-800 tracking-tight">Assalamu'alaikum</h1>
-                                <div class="flex items-center gap-2 mt-1 text-slate-500 text-[11px] font-medium">
-                                    <i class="fa-regular fa-calendar-check text-emerald-600"></i>
-                                    <span>${AppState.fullDateString}</span>
-                                </div>
+                                <h3 class="font-bold">Favorit Saya</h3>
+                                <p class="text-xs text-emerald-100">Kumpulan doa tersimpan</p>
                             </div>
-                            <button onclick="openModal('support-modal')" class="w-9 h-9 rounded-full bg-amber-50 text-amber-500 border border-amber-100 flex items-center justify-center text-sm shadow-sm active:scale-95 transition-transform">
-                                <i class="fa-solid fa-mug-hot"></i>
-                            </button>
                         </div>
-
-                        <!-- Search Compact -->
-                        <div class="relative mb-4">
-                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <i class="fa-solid fa-magnifying-glass text-slate-300"></i>
-                            </div>
-                            <input type="text" placeholder="Cari doa..." oninput="AppState.search = this.value; render()" value="${AppState.search}"
-                                class="w-full bg-slate-100 border-none rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-emerald-500/20 transition-all">
-                        </div>
-                    </div>
-
-                    <!-- Categories Grid (Full Space) -->
-                    <div class="flex-grow p-6 overflow-y-auto hide-scroll">
-                        <div class="grid grid-cols-2 gap-4 h-full content-start">
-                            ${cats.map(c => `
-                                <button onclick="navigateTo('detail', '${c.id}')"
-                                    class="bg-white p-4 rounded-2xl shadow-sm border border-slate-50 flex flex-col items-center justify-center gap-3 active:scale-95 transition-all hover:border-emerald-200 aspect-[4/3]">
-                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br ${c.c} flex items-center justify-center text-white text-lg shadow-md">
-                                        <i class="fa-solid ${c.i}"></i>
-                                    </div>
-                                    <span class="text-xs font-bold text-slate-700">${c.n}</span>
-                                </button>
-                            `).join('')}
-                        </div>
-                    </div>
-                    
-                    <!-- Spacing for Bottom Nav -->
-                    <div class="h-20"></div>
+                    </button>
                 </div>
-                ${renderNav()}
-            `;
-        }
 
-        function renderPrayer() {
-            const times = AppState.prayerTimes;
-            const now = new Date();
-            const currentTime = now.getHours() * 60 + now.getMinutes();
+                <!-- Prayer Times List (Hidden by default, shown via API) -->
+                <div id="prayer-list-container" class="bg-white p-4 rounded-2xl shadow-sm hidden">
+                     <h3 class="font-bold text-gray-800 mb-3 border-b pb-2">Jadwal Shalat Hari Ini</h3>
+                     <div id="prayer-times-list" class="space-y-2 text-sm">
+                         <!-- Injected by JS -->
+                     </div>
+                </div>
+            </div>
+
+            <!-- Slider/Reader View (Hidden by default) -->
+            <div id="reader-view" class="hidden h-full flex flex-col relative">
+                <!-- Navigation Header -->
+                <div class="flex items-center justify-between mb-4 sticky top-0 bg-islamic z-10 py-2">
+                    <button onclick="goHome()" class="text-gray-500 hover:text-emerald-600 w-8 h-8 flex items-center justify-center rounded-full active:bg-gray-200">
+                        <i class="fa-solid fa-arrow-left text-xl"></i>
+                    </button>
+                    <div class="text-center">
+                        <h2 id="reader-title" class="font-bold text-gray-800 text-lg">Judul Kategori</h2>
+                        <span id="slide-indicator" class="text-xs text-emerald-600 font-medium bg-emerald-100 px-2 py-0.5 rounded-full">1 / 10</span>
+                    </div>
+                    <button id="btn-favorite" onclick="toggleFavorite()" class="text-gray-300 hover:text-red-500 w-8 h-8 flex items-center justify-center rounded-full transition-colors active:scale-125">
+                        <i class="fa-solid fa-heart text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Card Slider Area -->
+                <div class="flex-1 relative" id="slider-container">
+                    <div id="content-card" class="bg-white rounded-3xl shadow-lg p-6 min-h-[400px] flex flex-col justify-between border border-gray-100 transition-all duration-300 transform">
+                        <!-- Content Injected via JS -->
+                        <div class="text-center animate-pulse mt-10">Memuat Data...</div>
+                    </div>
+                </div>
+
+                <!-- Bottom Controls -->
+                <div class="flex justify-between items-center mt-6 px-2">
+                    <button onclick="prevSlide()" class="w-12 h-12 rounded-full bg-white text-emerald-600 shadow-md border border-gray-100 flex items-center justify-center active:bg-gray-50 disabled:opacity-50" id="btn-prev">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    
+                    <!-- Tasbih Button (Dynamic) -->
+                    <button id="btn-tasbih" onclick="countTasbih()" class="w-20 h-20 rounded-full bg-emerald-600 shadow-xl shadow-emerald-200 border-4 border-emerald-100 flex flex-col items-center justify-center text-white active:scale-95 transition-all">
+                        <span id="tasbih-count" class="text-2xl font-bold">0</span>
+                        <span id="tasbih-target" class="text-[10px] opacity-80">Target: 33</span>
+                    </button>
+
+                    <button onclick="nextSlide()" class="w-12 h-12 rounded-full bg-white text-emerald-600 shadow-md border border-gray-100 flex items-center justify-center active:bg-gray-50 disabled:opacity-50" id="btn-next">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- SETTINGS MODAL -->
+        <div id="settings-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-end justify-center backdrop-blur-sm transition-opacity">
+            <div class="bg-white w-full max-w-[480px] rounded-t-3xl p-6 shadow-2xl animate-fade-in transform translate-y-0">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-bold text-lg text-gray-800">Pengaturan Tampilan</h3>
+                    <button onclick="toggleSettings()" class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center hover:bg-red-100 hover:text-red-500">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Arabic Font Size -->
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-medium text-gray-600">Ukuran Arab</label>
+                            <span class="text-xs bg-emerald-100 text-emerald-700 px-2 rounded" id="label-arabic-size">24px</span>
+                        </div>
+                        <input type="range" min="18" max="48" value="24" id="range-arabic" class="w-full">
+                        <p class="font-arabic text-center mt-3 text-emerald-800" id="preview-arabic" style="font-size: 24px;">اللَّهُ أَكْبَرُ</p>
+                    </div>
+
+                    <!-- Translation Font Size -->
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <label class="text-sm font-medium text-gray-600">Ukuran Terjemahan</label>
+                            <span class="text-xs bg-emerald-100 text-emerald-700 px-2 rounded" id="label-trans-size">14px</span>
+                        </div>
+                        <input type="range" min="10" max="24" value="14" id="range-trans" class="w-full">
+                        <p class="text-center mt-3 text-gray-600" id="preview-trans" style="font-size: 14px;">Allah Maha Besar</p>
+                    </div>
+                </div>
+
+                <button onclick="toggleSettings()" class="w-full mt-8 bg-emerald-600 text-white py-3 rounded-xl font-semibold active:scale-95 transition-transform">Simpan & Tutup</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- DATA STORE (Fallback) ---
+        const MOCK_DATA = {
+            pagi: [
+                { id: 'p1', arabic: "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ<br/>اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ...", latin: "Allahu laa ilaaha illa huwal hayyul qayyum...", translation: "(Membaca Ayat Kursi)", count: 1, ref: "HR. An-Nasai" },
+                { id: 'p2', arabic: "بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيْمِ<br/>قُلْ هُوَ ٱللَّهُ أَحَدٌ...", latin: "Qul huwallahu ahad...", translation: "Membaca Surah Al-Ikhlas, Al-Falaq, dan An-Naas (3x)", count: 3, ref: "HR. Abu Daud" },
+                { id: 'p3', arabic: "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ...", latin: "Ash-bahna wa ash-bahal mulku lillah...", translation: "Kami telah memasuki waktu pagi dan kerajaan hanya milik Allah...", count: 1, ref: "HR. Muslim" }
+            ],
+            petang: [
+                { id: 'e1', arabic: "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ...", latin: "Amsayna wa amsayal mulku lillah...", translation: "Kami telah memasuki waktu petang dan kerajaan hanya milik Allah...", count: 1, ref: "HR. Muslim" },
+                { id: 'e2', arabic: "اللَّهُمَّ بِكَ أَمْسَيْنَا وَبِكَ أَصْبَحْنَا...", latin: "Allahumma bika amsayna wa bika ashbahna...", translation: "Ya Allah, dengan rahmat-Mu kami berada di waktu sore...", count: 1, ref: "HR. Tirmidzi" }
+            ],
+            shalat: [
+                { id: 's1', arabic: "أَسْتَغْفِرُ اللهَ (x3)", latin: "Astaghfirullah", translation: "Aku memohon ampun kepada Allah.", count: 3, ref: "HR. Muslim" },
+                { id: 's2', arabic: "اللَّهُمَّ أَنْتَ السَّلاَمُ، وَمِنْكَ السَّلاَمُ...", latin: "Allahumma antas salaam...", translation: "Ya Allah, Engkau-lah As-Salam...", count: 1, ref: "HR. Muslim" },
+                { id: 's3', arabic: "سُبْحَانَ اللهِ (x33)", latin: "Subhanallah", translation: "Maha Suci Allah", count: 33, ref: "HR. Muslim" },
+                { id: 's4', arabic: "الْحَمْدُ لِلَّهِ (x33)", latin: "Alhamdulillah", translation: "Segala puji bagi Allah", count: 33, ref: "HR. Muslim" },
+                { id: 's5', arabic: "اللَّهُ أَكْبَرُ (x33)", latin: "Allahu Akbar", translation: "Allah Maha Besar", count: 33, ref: "HR. Muslim" }
+            ],
+            harian: [
+                { id: 'h1', arabic: "بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ، لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ", latin: "Bismillahi tawakkaltu 'alallah...", translation: "Doa keluar rumah", count: 1, ref: "HR. Abu Daud" },
+                { id: 'h2', arabic: "اللَّهُمَّ بَارِكْ لَنَا فِيمَا رَزَقْتَنَا وَقِنَا عَذَابَ النَّارِ", latin: "Allahumma barik lana...", translation: "Doa sebelum makan", count: 1, ref: "HR. Ibnu Sunni" }
+            ]
+        };
+
+        // --- STATE MANAGEMENT ---
+        let state = {
+            currentCategory: null,
+            currentIndex: 0,
+            currentData: [],
+            tasbihCount: 0,
+            favorites: JSON.parse(localStorage.getItem('dzikir_favorites')) || [],
+            settings: JSON.parse(localStorage.getItem('dzikir_settings')) || { arabicSize: 24, transSize: 14 }
+        };
+
+        // --- DOM ELEMENTS ---
+        const els = {
+            header: document.getElementById('main-header'),
+            dashboard: document.getElementById('dashboard-view'),
+            reader: document.getElementById('reader-view'),
+            readerTitle: document.getElementById('reader-title'),
+            card: document.getElementById('content-card'),
+            slideIndicator: document.getElementById('slide-indicator'),
+            btnPrev: document.getElementById('btn-prev'),
+            btnNext: document.getElementById('btn-next'),
+            btnTasbih: document.getElementById('btn-tasbih'),
+            tasbihCounter: document.getElementById('tasbih-count'),
+            tasbihTarget: document.getElementById('tasbih-target'),
+            btnFavorite: document.getElementById('btn-favorite'),
+            modal: document.getElementById('settings-modal'),
+            rangeArabic: document.getElementById('range-arabic'),
+            rangeTrans: document.getElementById('range-trans')
+        };
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initGreeting();
+            initPrayerTimes();
+            applySettings();
             
-            const schedule = [
-                { n: 'Subuh', t: times?.Fajr, i: 'fa-cloud-sun' },
-                { n: 'Dzuhur', t: times?.Dhuhr, i: 'fa-sun' },
-                { n: 'Ashar', t: times?.Asr, i: 'fa-cloud' },
-                { n: 'Maghrib', t: times?.Maghrib, i: 'fa-cloud-moon' },
-                { n: 'Isya', t: times?.Isha, i: 'fa-moon' }
+            // Random Verse
+            const verses = [
+                { t: '"Ingatlah, hanya dengan mengingat Allah hati menjadi tenteram."', r: 'QS. Ar-Ra\'d: 28' },
+                { t: '"Dan Tuhanmu berfirman: Berdoalah kepada-Ku, niscaya akan Kuperkenankan bagimu."', r: 'QS. Ghafir: 60' },
+                { t: '"Maka bersabarlah kamu, sesungguhnya janji Allah itu benar."', r: 'QS. Ar-Rum: 60' }
             ];
+            const rv = verses[Math.floor(Math.random() * verses.length)];
+            document.getElementById('random-verse-text').innerText = rv.t;
+            document.getElementById('random-verse-ref').innerText = rv.r;
 
-            let nextIdx = 0;
-            if(times) {
-                for(let i=0; i<schedule.length; i++) {
-                    const [h, m] = schedule[i].t.split(':');
-                    if(currentTime < parseInt(h)*60 + parseInt(m)) {
-                        nextIdx = i; break;
-                    }
-                    if(i === schedule.length-1) nextIdx = 0;
+            // Settings Listeners
+            els.rangeArabic.addEventListener('input', (e) => {
+                state.settings.arabicSize = e.target.value;
+                document.getElementById('label-arabic-size').innerText = e.target.value + 'px';
+                document.getElementById('preview-arabic').style.fontSize = e.target.value + 'px';
+                applySettings(); // Realtime update
+            });
+            els.rangeTrans.addEventListener('input', (e) => {
+                state.settings.transSize = e.target.value;
+                document.getElementById('label-trans-size').innerText = e.target.value + 'px';
+                document.getElementById('preview-trans').style.fontSize = e.target.value + 'px';
+                applySettings();
+            });
+        });
+
+        // --- NAVIGATION LOGIC ---
+        function openCategory(category) {
+            state.currentCategory = category;
+            state.currentIndex = 0;
+            state.tasbihCount = 0;
+
+            if (category === 'favorit') {
+                if (state.favorites.length === 0) {
+                    alert("Belum ada doa favorit tersimpan.");
+                    return;
                 }
+                state.currentData = state.favorites;
+            } else {
+                state.currentData = MOCK_DATA[category] || [];
             }
 
-            return `
-                <div class="flex flex-col h-full bg-slate-50">
-                    ${renderHeader('Jadwal Shalat')}
-                    <div class="flex-grow p-6 flex flex-col hide-scroll">
-                        <!-- Compact Dashboard Card -->
-                        <div class="bg-slate-900 rounded-[2rem] p-6 text-white mb-6 relative overflow-hidden shadow-xl flex items-center justify-between flex-shrink-0">
-                            <div class="absolute top-0 right-0 w-40 h-40 bg-emerald-600/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
-                            
-                            <div class="relative z-10">
-                                <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider mb-1">
-                                    <i class="fa-solid fa-location-dot mr-1"></i> ${AppState.location}
-                                </p>
-                                <p class="text-xs text-slate-400">Selanjutnya: <span class="text-white font-bold">${times ? schedule[nextIdx].n : '...'}</span></p>
-                            </div>
-
-                            <div class="relative z-10 text-right">
-                                <h2 class="text-3xl font-bold font-mono tracking-tighter">${times ? schedule[nextIdx].t : '--:--'}</h2>
-                            </div>
-                        </div>
-
-                        <!-- Compact List -->
-                        <div class="flex-grow flex flex-col justify-start gap-3 pb-20">
-                            ${times ? schedule.map((p, idx) => {
-                                const active = idx === nextIdx;
-                                return `
-                                <div class="flex justify-between items-center px-4 py-3.5 rounded-2xl border ${active ? 'bg-white border-emerald-500 shadow-md' : 'bg-white/50 border-slate-100'} transition-all">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-full ${active ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-400'} flex items-center justify-center text-xs">
-                                            <i class="fa-solid ${p.i}"></i>
-                                        </div>
-                                        <span class="font-bold text-sm ${active ? 'text-slate-800' : 'text-slate-500'}">${p.n}</span>
-                                    </div>
-                                    <span class="font-mono font-bold text-sm ${active ? 'text-emerald-600' : 'text-slate-400'}">${p.t}</span>
-                                </div>
-                            `}).join('') : '<div class="text-center py-10 text-slate-400">Memuat jadwal...</div>'}
-                        </div>
-                    </div>
-                    ${renderNav()}
-                </div>
-            `;
-        }
-
-        function renderQuran() {
-            const filtered = AppState.surahs.filter(s => s.namaLatin.toLowerCase().includes(AppState.search.toLowerCase()));
-            return `
-                <div class="flex flex-col h-full bg-slate-50">
-                    ${renderHeader('Al-Qur\'an Digital')}
-                    
-                    <div class="px-6 py-4 bg-white border-b border-slate-100">
-                        <div class="relative">
-                            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
-                            <input type="text" placeholder="Cari Surah..." oninput="AppState.search = this.value; render()" value="${AppState.search}"
-                                class="w-full bg-slate-50 border-none shadow-inner rounded-xl py-3 pl-11 pr-4 text-sm focus:ring-2 focus:ring-emerald-500 transition-all">
-                        </div>
-                    </div>
-
-                    <div class="flex-grow overflow-y-auto px-6 py-4 space-y-3 pb-24 hide-scroll">
-                        ${AppState.loading ? `<div class="py-20 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin mb-2"></i><br>Memuat...</div>` :
-                            filtered.map(s => `
-                            <button onclick="fetchSurahDetail(${s.nomor})" class="w-full bg-white p-4 rounded-2xl flex items-center gap-4 border border-slate-100 shadow-sm active:scale-[0.98] transition-all text-left group">
-                                <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs relative overflow-hidden group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                                    <span class="relative z-10">${s.nomor}</span>
-                                </div>
-                                <div class="flex-grow">
-                                    <p class="font-bold text-slate-800 text-sm mb-0.5">${s.namaLatin}</p>
-                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">${s.tempatTurun} • ${s.jumlahAyat} Ayat</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="font-arabic text-lg text-slate-700 opacity-80" dir="rtl">${s.nama}</p>
-                                </div>
-                            </button>
-                        `).join('')}
-                    </div>
-                    ${renderNav()}
-                </div>
-            `;
-        }
-
-        function renderQuranDetail() {
-            const s = AppState.currentSurah;
-            if (AppState.loading || !s) return `<div class="h-full flex flex-col items-center justify-center"><div class="w-10 h-10 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin"></div></div>`;
+            // UI Switch
+            els.header.classList.add('-translate-y-full', 'absolute'); // Hide header smoothly
+            setTimeout(() => els.header.classList.add('hidden'), 300);
             
-            const audioUrl = s.audioFull ? (s.audioFull['05'] || Object.values(s.audioFull)[0]) : null;
-            const isPlaying = AppState.audio && AppState.audio.src === audioUrl && !AppState.audio.paused;
-
-            return `
-                <div class="flex flex-col h-full bg-slate-50">
-                    ${renderHeader(s.namaLatin, { backBtn: "navigateTo('quran')", rightBtn: audioUrl ? `
-                        <button onclick="playAudio('${audioUrl}')" class="w-9 h-9 rounded-full ${isPlaying ? 'bg-red-50 text-red-500 shadow-inner' : 'bg-emerald-50 text-emerald-600'} flex items-center justify-center transition-all">
-                            <i class="fa-solid ${isPlaying ? 'fa-stop' : 'fa-play'} text-xs"></i>
-                        </button>
-                    ` : '' })}
-                    
-                    <div class="flex-grow overflow-y-auto px-5 py-6 pb-24 hide-scroll">
-                        <!-- Compact Quran Header Card -->
-                        <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-[1.5rem] p-5 text-white mb-6 text-center relative overflow-hidden shadow-lg mx-1">
-                            <img src="https://www.transparenttextures.com/patterns/arabesque.png" class="absolute inset-0 opacity-10" />
-                            <div class="relative z-10">
-                                <p class="font-arabic-title text-2xl mb-1">${s.nama}</p>
-                                <p class="text-[10px] opacity-70 font-medium uppercase tracking-widest mb-3">${s.arti} • ${s.jumlahAyat} Ayat</p>
-                                <div class="h-px w-16 bg-white/20 mx-auto mb-3"></div>
-                                <p class="font-arabic-title text-lg">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
-                            </div>
-                        </div>
-
-                        <div class="space-y-6 px-1">
-                            ${s.ayat.map(a => `
-                                <div class="relative pl-0 pr-0 py-2">
-                                    <div class="bg-emerald-50/50 rounded-full px-3 py-1 inline-flex items-center gap-3 mb-4">
-                                        <span class="text-[10px] font-bold text-emerald-700">${s.nomor}:${a.nomorAyat}</span>
-                                        <button onclick="copyToClipboard('${a.teksArab}')" class="text-slate-400 hover:text-emerald-600 text-[10px]"><i class="fa-solid fa-copy"></i></button>
-                                    </div>
-                                    <p class="font-arabic-dynamic text-right text-slate-800 mb-4 leading-[2.5]" dir="rtl" style="margin-right: 2px;">${a.teksArab}</p>
-                                    <p class="font-translation-dynamic text-slate-500 leading-relaxed text-justify border-l-2 border-emerald-100 pl-4">${a.teksIndonesia}</p>
-                                </div>
-                                <div class="h-px bg-slate-100 w-full my-6"></div>
-                            `).join('')}
-                        </div>
-                    </div>
-                    ${renderNav()}
-                </div>
-            `;
-        }
-
-        function renderDetail() {
-            const data = AppState.view === 'fav' ? getFavs() : DB[AppState.category];
-            if (!data || data.length === 0) return `<div class="h-full flex flex-col items-center justify-center p-10 text-center"><i class="fa-solid fa-box-open text-4xl text-slate-200 mb-4"></i><p class="text-slate-400">Data tidak ditemukan</p><button onclick="navigateTo('home')" class="mt-4 px-6 py-2 bg-emerald-50 text-emerald-600 rounded-full text-sm font-bold">Kembali</button></div>`;
+            els.dashboard.classList.add('hidden');
+            els.reader.classList.remove('hidden');
             
-            const item = data[AppState.index];
-            const isFav = getFavs().some(f => f.arabic === item.arabic);
-            const total = item.count || 1;
-            const current = item.currentCount !== undefined ? item.currentCount : total;
+            const titles = { pagi: "Dzikir Pagi", petang: "Dzikir Petang", shalat: "Dzikir Shalat", harian: "Doa Harian", favorit: "Favorit Saya" };
+            els.readerTitle.innerText = titles[category] || "Bacaan";
+
+            renderSlide();
+        }
+
+        function goHome() {
+            els.header.classList.remove('hidden', 'absolute');
+            setTimeout(() => els.header.classList.remove('-translate-y-full'), 10);
             
-            const radius = 40;
-            const circumference = radius * 2 * Math.PI;
-            const offset = circumference - ((total - current) / total) * circumference;
+            els.reader.classList.add('hidden');
+            els.dashboard.classList.remove('hidden');
+        }
 
-            return `
-                <div class="flex flex-col h-full bg-slate-50" ontouchstart="handleTouchStart(event)" ontouchend="handleTouchEnd(event)">
-                    ${renderHeader(item.title || 'Dzikir', { backBtn: "navigateTo('home')" })}
-                    
-                    <!-- Content Area -->
-                    <div class="flex-grow overflow-y-auto px-6 py-6 hide-scroll pb-40">
-                        <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50 relative mb-8 min-h-[50vh] flex flex-col justify-center">
-                            <button onclick='toggleFav(${JSON.stringify(item).replace(/'/g, "&apos;")})' class="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full transition-colors ${isFav ? 'text-rose-500 bg-rose-50' : 'text-slate-300 hover:bg-slate-50'}">
-                                <i class="fa-solid fa-heart"></i>
-                            </button>
-
-                            <div class="text-center mb-6">
-                                <span class="px-3 py-1 bg-slate-100 text-slate-500 rounded-lg text-[10px] font-bold uppercase tracking-widest">Target: ${total}x</span>
-                            </div>
-
-                            <div class="w-full mb-8 text-center" dir="rtl">
-                                <p class="font-arabic-dynamic text-slate-800 leading-[2.5]">${item.arabic}</p>
-                            </div>
-
-                            <div class="space-y-4 text-center">
-                                ${item.latin ? `<p class="text-sm text-emerald-600/90 italic font-medium">${item.latin}</p>` : ''}
-                                <p class="font-translation-dynamic text-slate-500 leading-relaxed">${item.translation || ''}</p>
-                            </div>
-
-                            ${item.faedah ? `
-                                <div class="mt-8 pt-6 border-t border-slate-100 text-left">
-                                    <p class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1">Keutamaan</p>
-                                    <p class="text-xs text-slate-600 leading-relaxed">${item.faedah}</p>
-                                </div>
-                            ` : ''}
-                            
-                            <!-- Hint Swipe -->
-                            <div class="absolute bottom-4 left-0 right-0 text-center opacity-20 pointer-events-none">
-                                <p class="text-[10px] font-bold uppercase"><i class="fa-solid fa-left-right mr-1"></i> Geser</p>
-                            </div>
-                        </div>
+        // --- SLIDER ENGINE ---
+        function renderSlide() {
+            const item = state.currentData[state.currentIndex];
+            const isFav = state.favorites.some(f => f.id === item.id);
+            
+            // Render Card Content
+            els.card.innerHTML = `
+                <div class="flex-1 flex flex-col justify-center items-center text-center animate-fade-in">
+                    <div class="w-full mb-6">
+                        <p class="font-arabic font-bold text-gray-800 arabic-text leading-loose" style="font-size: ${state.settings.arabicSize}px">
+                            ${item.arabic}
+                        </p>
                     </div>
-
-                    <!-- AREA TASBIH DIGITAL (FIXED BOTTOM ABOVE NAV) -->
-                    <div class="absolute bottom-20 left-0 right-0 flex flex-col items-center justify-end pb-2 z-20 pointer-events-none">
-                        
-                        <div id="tasbih-interaction-area" 
-                            class="pointer-events-auto relative w-24 h-48 flex flex-col items-center justify-end group cursor-grab active:cursor-grabbing mb-4"
-                            onclick="handleTasbihCount()">
-                            
-                            <div class="absolute top-0 bottom-0 w-1.5 bg-slate-200 rounded-full overflow-hidden">
-                                <div class="w-full bg-emerald-200 h-1/2 rounded-full"></div>
-                            </div>
-                            
-                            <div id="tasbih-bead" class="relative z-10 w-16 h-16 rounded-[1.5rem] bg-emerald-600 shadow-xl shadow-emerald-300 flex items-center justify-center text-white mb-4 transition-transform active:scale-95">
-                                <i class="fa-solid fa-chevron-down text-lg opacity-50 animate-bounce"></i>
-                            </div>
-                        </div>
-
-                        <!-- Counter -->
-                        <div class="absolute bottom-8 right-8 pointer-events-none">
-                            <div class="relative w-16 h-16 flex items-center justify-center">
-                                <svg class="progress-ring absolute inset-0 transform -rotate-90 w-full h-full p-1" width="64" height="64">
-                                    <circle class="text-slate-100" stroke="currentColor" stroke-width="6" fill="transparent" r="26" cx="50%" cy="50%" />
-                                    <circle class="progress-ring__circle text-emerald-500" stroke="currentColor" stroke-width="6" stroke-linecap="round" fill="white" r="26" cx="50%" cy="50%" 
-                                        style="stroke-dasharray: ${circumference} ${circumference}; stroke-dashoffset: ${offset};" />
-                                </svg>
-                                <span id="counter-display" class="text-lg font-mono font-bold text-emerald-600 absolute">${current}</span>
-                            </div>
-                        </div>
-                         ${current === 0 ? `
-                            <button onclick="resetTasbih()" class="pointer-events-auto absolute bottom-10 left-8 w-12 h-12 bg-white rounded-full shadow-lg text-emerald-600 flex items-center justify-center hover:bg-emerald-50 z-30">
-                                <i class="fa-solid fa-rotate-right"></i>
-                            </button>
-                        ` : ''}
+                    <div class="w-full mb-4">
+                        <p class="text-emerald-600 font-medium text-sm mb-1">Bacaan Latin:</p>
+                        <p class="text-gray-600 italic" style="font-size: ${state.settings.transSize}px">${item.latin}</p>
+                    </div>
+                    <div class="w-full border-t pt-4">
+                        <p class="text-gray-500" style="font-size: ${state.settings.transSize}px">${item.translation}</p>
+                        <span class="inline-block mt-3 px-3 py-1 bg-gray-100 text-gray-400 text-[10px] rounded-full uppercase tracking-wide">${item.ref}</span>
                     </div>
                 </div>
             `;
+
+            // Update Controls
+            els.slideIndicator.innerText = `${state.currentIndex + 1} / ${state.currentData.length}`;
+            els.btnPrev.disabled = state.currentIndex === 0;
+            els.btnNext.disabled = state.currentIndex === state.currentData.length - 1;
+            
+            // Favorite Button State
+            if (isFav) {
+                els.btnFavorite.classList.remove('text-gray-300');
+                els.btnFavorite.classList.add('text-red-500');
+                els.btnFavorite.innerHTML = '<i class="fa-solid fa-heart text-xl"></i>';
+            } else {
+                els.btnFavorite.classList.add('text-gray-300');
+                els.btnFavorite.classList.remove('text-red-500');
+                els.btnFavorite.innerHTML = '<i class="fa-regular fa-heart text-xl"></i>';
+            }
+
+            // Tasbih Reset
+            state.tasbihCount = 0;
+            updateTasbihUI(item.count);
         }
 
-        function renderNav() {
-            const tabs = [
-                { id: 'home', i: 'fa-house', n: 'Home' },
-                { id: 'quran', i: 'fa-book-quran', n: 'Qur\'an' },
-                { id: 'prayer', i: 'fa-clock', n: 'Waktu' },
-                { id: 'fav', i: 'fa-heart', n: 'Favorit' }
-            ];
-            const activeId = AppState.view === 'detail' ? 'home' : (AppState.view === 'quran-detail' ? 'quran' : AppState.view);
-
-            return `
-                <div class="glass-nav fixed bottom-0 left-0 right-0 h-[72px] flex items-center justify-around z-50 md:absolute md:rounded-b-[2.5rem] md:border-t-0">
-                    ${tabs.map(t => {
-                        const isActive = activeId === t.id;
-                        return `
-                        <button onclick="navigateTo('${t.id}')" 
-                            class="flex flex-col items-center justify-center w-full h-full gap-1 ${isActive ? 'text-emerald-600' : 'text-slate-300 hover:text-slate-400'}">
-                            <i class="fa-solid ${t.i} text-xl mb-0.5 transition-transform ${isActive ? '-translate-y-1' : ''}"></i>
-                            <span class="text-[10px] font-bold tracking-wide ${isActive ? 'opacity-100' : 'opacity-0'} transition-opacity">${t.n}</span>
-                        </button>
-                    `}).join('')}
-                </div>
-            `;
+        function nextSlide() {
+            if (state.currentIndex < state.currentData.length - 1) {
+                state.currentIndex++;
+                renderSlide();
+            }
         }
 
-        document.addEventListener('DOMContentLoaded', initApp);
+        function prevSlide() {
+            if (state.currentIndex > 0) {
+                state.currentIndex--;
+                renderSlide();
+            }
+        }
+
+        // --- TASBIH LOGIC ---
+        function updateTasbihUI(target) {
+            els.tasbihCounter.innerText = state.tasbihCount;
+            els.tasbihTarget.innerText = target > 1 ? `Target: ${target}` : "Baca 1x";
+            
+            // Check logic
+            const btn = els.btnTasbih;
+            if (target > 1) {
+                btn.style.display = 'flex';
+                if (state.tasbihCount >= target) {
+                    btn.classList.remove('bg-emerald-600', 'shadow-emerald-200');
+                    btn.classList.add('bg-emerald-400', 'shadow-none'); // Visual feedback done
+                } else {
+                    btn.classList.add('bg-emerald-600', 'shadow-emerald-200');
+                    btn.classList.remove('bg-emerald-400', 'shadow-none');
+                }
+            } else {
+                // If count is 1, simplify UI or keep it for consistency
+                 els.tasbihTarget.innerText = "Selesai";
+                 if(state.tasbihCount >= 1) {
+                     // Keep UI
+                 }
+            }
+        }
+
+        function countTasbih() {
+            const target = state.currentData[state.currentIndex].count;
+            if (state.tasbihCount < target) {
+                state.tasbihCount++;
+                
+                // Haptic Feedback
+                if (navigator.vibrate) navigator.vibrate(30);
+                
+                // Animation
+                els.btnTasbih.classList.add('scale-90');
+                setTimeout(() => els.btnTasbih.classList.remove('scale-90'), 100);
+
+                if (state.tasbihCount === target) {
+                    if (navigator.vibrate) navigator.vibrate([50, 50, 50]); // Success vibration
+                    // Auto next slide optional? No, let user decide.
+                }
+                updateTasbihUI(target);
+            }
+        }
+
+        // --- SWIPE GESTURE ---
+        let touchStartX = 0;
+        let touchEndX = 0;
+        const sliderContainer = document.getElementById('slider-container');
+
+        sliderContainer.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
+        sliderContainer.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const threshold = 50;
+            if (touchEndX < touchStartX - threshold) nextSlide(); // Swipe Left
+            if (touchEndX > touchStartX + threshold) prevSlide(); // Swipe Right
+        }
+
+        // --- FAVORITES SYSTEM ---
+        function toggleFavorite() {
+            const item = state.currentData[state.currentIndex];
+            const index = state.favorites.findIndex(f => f.id === item.id);
+            const icon = els.btnFavorite.querySelector('i');
+
+            icon.classList.add('animate-pop'); // Animation
+
+            if (index === -1) {
+                state.favorites.push(item);
+                els.btnFavorite.classList.replace('text-gray-300', 'text-red-500');
+                els.btnFavorite.innerHTML = '<i class="fa-solid fa-heart text-xl"></i>';
+            } else {
+                state.favorites.splice(index, 1);
+                els.btnFavorite.classList.replace('text-red-500', 'text-gray-300');
+                els.btnFavorite.innerHTML = '<i class="fa-regular fa-heart text-xl"></i>';
+                
+                // If viewing favorite category, refresh logic needed (simplified here)
+                if (state.currentCategory === 'favorit') {
+                   // Ideally remove slide immediately, but simpler to just leave until reload
+                }
+            }
+            
+            localStorage.setItem('dzikir_favorites', JSON.stringify(state.favorites));
+            setTimeout(() => icon.classList.remove('animate-pop'), 300);
+        }
+
+        // --- SETTINGS SYSTEM ---
+        function toggleSettings() {
+            const isHidden = els.modal.classList.contains('hidden');
+            if (isHidden) {
+                els.modal.classList.remove('hidden');
+                // Set inputs to current state
+                els.rangeArabic.value = state.settings.arabicSize;
+                els.rangeTrans.value = state.settings.transSize;
+                document.getElementById('label-arabic-size').innerText = state.settings.arabicSize + 'px';
+                document.getElementById('label-trans-size').innerText = state.settings.transSize + 'px';
+            } else {
+                localStorage.setItem('dzikir_settings', JSON.stringify(state.settings));
+                els.modal.classList.add('hidden');
+                // Re-render current slide to apply changes if reader is open
+                if (!els.reader.classList.contains('hidden')) renderSlide();
+            }
+        }
+
+        function applySettings() {
+            // Apply directly where needed or relying on renderSlide reading state
+            document.documentElement.style.setProperty('--arabic-size', state.settings.arabicSize + 'px');
+        }
+
+        // --- UTILS: TIME & API ---
+        function initGreeting() {
+            const hour = new Date().getHours();
+            let greet = "Selamat Pagi";
+            if (hour >= 11) greet = "Selamat Siang";
+            if (hour >= 15) greet = "Selamat Sore";
+            if (hour >= 18) greet = "Selamat Malam";
+            
+            document.getElementById('greeting-text').innerText = `${greet}, Hamba Allah`;
+            
+            // Simple Hijri converter (Approximate)
+            const date = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('hijri-date').innerText = date.toLocaleDateString('id-ID', options);
+        }
+
+        async function initPrayerTimes() {
+            // Fallback default (Jakarta)
+            const defaultCoords = { lat: -6.2088, lon: 106.8456 }; 
+            
+            try {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(pos => fetchPrayerTimes(pos.coords), 
+                    err => fetchPrayerTimes({latitude: defaultCoords.lat, longitude: defaultCoords.lon}));
+                } else {
+                    fetchPrayerTimes({latitude: defaultCoords.lat, longitude: defaultCoords.lon});
+                }
+            } catch (e) { console.log("Geo Error", e); }
+        }
+
+        async function fetchPrayerTimes(coords) {
+            const date = new Date();
+            const url = `https://api.aladhan.com/v1/timings/${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}?latitude=${coords.latitude}&longitude=${coords.longitude}&method=20`; // Method 20: Kemenag RI mostly compatible
+            
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                const timings = data.data.timings;
+                
+                // Update UI Header
+                document.getElementById('location-name').innerHTML = `<i class="fa-solid fa-location-dot mr-1"></i>Lat: ${coords.latitude.toFixed(2)}, Long: ${coords.longitude.toFixed(2)}`;
+                
+                // Determine Next Prayer
+                const prayerOrder = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+                const prayerNamesIndo = {'Fajr': 'Shubuh', 'Dhuhr': 'Dzuhur', 'Asr': 'Ashar', 'Maghrib': 'Maghrib', 'Isha': 'Isya'};
+                
+                let nextP = 'Fajr';
+                let nowMin = date.getHours() * 60 + date.getMinutes();
+                
+                for (let p of prayerOrder) {
+                    const [h, m] = timings[p].split(':').map(Number);
+                    if (h * 60 + m > nowMin) {
+                        nextP = p;
+                        break;
+                    }
+                }
+                
+                document.getElementById('next-prayer-name').innerText = prayerNamesIndo[nextP];
+                document.getElementById('next-prayer-time').innerText = timings[nextP];
+                
+            } catch (err) {
+                console.error("API Error", err);
+                document.getElementById('next-prayer-name').innerText = "Offline";
+            }
+        }
     </script>
 </body>
 </html>
