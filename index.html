@@ -9,11 +9,11 @@
     <title>Dzikir & Doa Pro</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Inter:wght@400;500;600;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* Custom Font Setup */
+        /* Setup Font LPMQ Standar Kemenag */
         @font-face {
             font-family: 'LPMQ Isep Misbah';
             src: url('https://raw.githubusercontent.com/dawamie87/Zikir-dan-Doa-Qur-ani/main/LPMQ_IsepMisbah.ttf') format('truetype');
@@ -22,138 +22,146 @@
 
         :root {
             --primary: #047857; 
-            --font-arabic: 'LPMQ Isep Misbah', 'Scheherazade New', serif;
+            --font-arabic: 'LPMQ Isep Misbah', serif;
             --scale-arabic: 1;
             --scale-translation: 1;
         }
 
-        /* Base Styles & Dark Mode Transitions */
-        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; -webkit-tap-highlight-color: transparent; }
+        /* Base Styles */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            transition: background-color 0.3s, color 0.3s; 
+            -webkit-tap-highlight-color: transparent; 
+            overscroll-behavior-y: none; /* Mencegah pull-to-refresh pada mobile */
+        }
         
-        /* Dark Mode Variables */
+        /* Dark Mode Styling */
         body.dark-mode { background-color: #0f172a; color: #f1f5f9; }
         .dark-mode #app-root { background-color: #0f172a; border-color: #1e293b; }
         .dark-mode .bg-white { background-color: #1e293b !important; }
         .dark-mode .bg-slate-50 { background-color: #0f172a !important; }
+        .dark-mode .bg-slate-100 { background-color: #334155 !important; }
         .dark-mode .text-slate-800 { color: #f1f5f9 !important; }
         .dark-mode .text-slate-700 { color: #e2e8f0 !important; }
         .dark-mode .text-slate-600 { color: #cbd5e1 !important; }
         .dark-mode .text-slate-500 { color: #94a3b8 !important; }
         .dark-mode .text-slate-400 { color: #64748b !important; }
-        .dark-mode .border-slate-100 { border-color: #334155 !important; }
-        .dark-mode .bg-emerald-50 { background-color: #064e3b !important; color: #34d399 !important; }
-        .dark-mode input { background-color: #334155 !important; color: white !important; }
-        .dark-mode .glass-nav { background: rgba(30, 41, 59, 0.85); border-top: 1px solid rgba(255,255,255,0.1); }
+        .dark-mode .border-slate-100, .dark-mode .border-slate-200 { border-color: #334155 !important; }
+        .dark-mode .glass-nav { background: rgba(15, 23, 42, 0.95); border-top: 1px solid rgba(255,255,255,0.05); }
+        .dark-mode .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5); }
 
-        /* Typography */
+        /* Typography Helper */
         .font-arabic-dynamic {
             font-family: var(--font-arabic);
-            line-height: 2.5;
-            font-size: calc(2.0rem * var(--scale-arabic));
+            line-height: 2.2;
+            font-weight: normal;
+            font-size: calc(1.8rem * var(--scale-arabic));
         }
         .font-translation-dynamic {
             font-size: calc(0.9rem * var(--scale-translation));
         }
 
-        /* Animations */
-        @keyframes tap-pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(0.97); }
-            100% { transform: scale(1); }
-        }
-        .tap-active { animation: tap-pulse 0.1s ease-out; }
-
-        .modal-transition { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .modal-open { transform: translateY(0) !important; }
-
+        /* Navigasi Glassmorphism yang Lebih Rapi */
         .glass-nav {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
         }
 
-        /* Utilities */
+        /* Hide Scrollbar */
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Progress Ring */
+        /* Animations */
+        @keyframes bead-slide {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(20px); }
+            100% { transform: translateY(0); }
+        }
+        .bead-active { animation: bead-slide 0.3s ease-in-out; }
+
+        .modal-transition { transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1); }
+        .modal-open { transform: translateY(0) !important; }
+
+        /* Tasbih Progress Ring */
         .progress-ring__circle {
-            transition: stroke-dashoffset 0.35s;
+            transition: stroke-dashoffset 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             transform: rotate(-90deg);
             transform-origin: 50% 50%;
         }
 
         @media (min-width: 768px) {
-            body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background-color: #f8fafc; }
+            body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background-color: #f1f5f9; }
         }
     </style>
 </head>
 <body class="light-mode selection:bg-emerald-200 selection:text-emerald-900">
 
     <main id="app-root" class="w-full h-[100dvh] bg-white shadow-2xl overflow-hidden relative flex flex-col
-        md:h-[90vh] md:w-[420px] md:rounded-[3rem] md:border-8 md:border-white">
+        md:h-[90vh] md:w-[420px] md:rounded-[3rem] md:border-[8px] md:border-white">
         <!-- Content injected via JS -->
     </main>
 
-    <!-- Global Components (Toast, Modals) -->
-    <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-800/90 text-white px-6 py-3 rounded-full text-sm font-medium shadow-xl opacity-0 transition-all pointer-events-none z-50 backdrop-blur-sm flex items-center gap-2">
+    <!-- Global Toast -->
+    <div id="toast" class="fixed bottom-28 left-1/2 -translate-x-1/2 bg-slate-900/90 text-white px-5 py-3 rounded-full text-xs font-medium shadow-2xl opacity-0 transition-all pointer-events-none z-50 backdrop-blur-md flex items-center gap-2 translate-y-4">
         <i class="fa-solid fa-circle-check text-emerald-400"></i>
         <span id="toast-msg">Notifikasi</span>
     </div>
 
-    <div id="modal-overlay" onclick="closeModals()" class="fixed inset-0 bg-black/60 z-40 hidden opacity-0 transition-opacity backdrop-blur-[2px]"></div>
+    <!-- Modal Overlay -->
+    <div id="modal-overlay" onclick="closeModals()" class="fixed inset-0 bg-black/40 z-40 hidden opacity-0 transition-opacity backdrop-blur-[2px]"></div>
 
     <!-- SETTINGS MODAL -->
     <div id="settings-modal" class="fixed bottom-0 left-0 right-0 bg-white rounded-t-[2.5rem] z-50 p-8 transform translate-y-full modal-transition md:max-w-[420px] md:mx-auto shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-        <div class="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-8"></div>
+        <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
         <h3 class="text-xl font-bold mb-8 text-slate-800 flex items-center gap-3">
-            <i class="fa-solid fa-sliders text-emerald-600"></i> Pengaturan
+            <i class="fa-solid fa-sliders text-emerald-600"></i> Pengaturan Tampilan
         </h3>
         <div class="space-y-8">
             <div>
                 <div class="flex justify-between mb-3">
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ukuran Arab</label>
-                    <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">Aa</span>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ukuran Huruf Arab</label>
+                    <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">LPMQ</span>
                 </div>
-                <input type="range" min="0.8" max="2.2" step="0.1" value="1" id="scale-ar" class="w-full accent-emerald-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer">
+                <input type="range" min="0.8" max="2.0" step="0.1" value="1" id="scale-ar" class="w-full accent-emerald-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer">
             </div>
             <div>
                 <div class="flex justify-between mb-3">
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ukuran Latin & Arti</label>
-                    <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">Aa</span>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ukuran Terjemahan</label>
+                    <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">Latin</span>
                 </div>
-                <input type="range" min="0.8" max="1.6" step="0.1" value="1" id="scale-tr" class="w-full accent-emerald-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer">
+                <input type="range" min="0.8" max="1.4" step="0.1" value="1" id="scale-tr" class="w-full accent-emerald-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer">
             </div>
         </div>
-        <button onclick="closeModals()" class="w-full mt-10 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold shadow-lg shadow-emerald-200 active:scale-[0.98] transition-all">Simpan Perubahan</button>
+        <button onclick="closeModals()" class="w-full mt-10 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold shadow-lg shadow-emerald-200 active:scale-[0.98] transition-all">Simpan</button>
     </div>
 
     <!-- SUPPORT MODAL -->
     <div id="support-modal" class="fixed bottom-0 left-0 right-0 bg-white rounded-t-[2.5rem] z-50 p-8 transform translate-y-full modal-transition md:max-w-[420px] md:mx-auto text-center shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-        <div class="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-6"></div>
-        <div class="w-20 h-20 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-6 shadow-inner"><i class="fa-solid fa-hand-holding-heart"></i></div>
-        <h3 class="text-2xl font-bold text-slate-800 mb-2">Dukung Kami</h3>
-        <p class="text-sm text-slate-500 mb-8 leading-relaxed">Bantu pengembangan aplikasi ini agar terus bermanfaat bagi umat.</p>
-        <div class="bg-slate-50 border border-slate-200 rounded-3xl p-5 mb-8 relative overflow-hidden group">
-            <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
-            <p class="text-[10px] text-slate-400 font-bold uppercase mb-2 text-left pl-2">Bank Central Asia</p>
-            <div class="flex items-center justify-between gap-3">
-                <span class="text-2xl font-mono font-bold text-slate-700 tracking-wide">676030548</span>
-                <button onclick="copyToClipboard('676030548')" class="w-10 h-10 rounded-full bg-white shadow-sm text-emerald-600 hover:bg-emerald-50 active:scale-90 transition-transform"><i class="fa-solid fa-copy"></i></button>
+        <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
+        <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center text-2xl mx-auto mb-4 shadow-inner"><i class="fa-solid fa-hand-holding-heart"></i></div>
+        <h3 class="text-xl font-bold text-slate-800 mb-2">Dukung Pengembangan</h3>
+        <p class="text-sm text-slate-500 mb-6 leading-relaxed">Partisipasi Anda membantu kami menjaga aplikasi ini tetap gratis dan bebas iklan.</p>
+        <div class="bg-slate-50 border border-slate-200 rounded-3xl p-5 mb-6 relative overflow-hidden text-left">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-emerald-600 uppercase tracking-wide">BCA</span>
+                <i class="fa-solid fa-building-columns text-slate-300"></i>
             </div>
-            <p class="text-xs font-medium text-slate-500 text-left pl-2 mt-1">Ahmad Dawami</p>
+            <div class="flex items-center justify-between gap-3">
+                <span class="text-xl font-mono font-bold text-slate-700 tracking-wide">676030548</span>
+                <button onclick="copyToClipboard('676030548')" class="w-8 h-8 rounded-full bg-white shadow-sm text-emerald-600 flex items-center justify-center hover:bg-emerald-50 active:scale-90 transition-transform"><i class="fa-solid fa-copy text-xs"></i></button>
+            </div>
+            <p class="text-xs font-medium text-slate-400 mt-1">A.N. Ahmad Dawami</p>
         </div>
-        <button onclick="closeModals()" class="w-full py-4 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-2xl font-bold transition-colors">Tutup</button>
+        <button onclick="closeModals()" class="w-full py-3.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-2xl font-bold transition-colors text-sm">Tutup</button>
     </div>
 
     <script>
-        /**
-         * CONFIGURATION & STATE
-         */
+        /** STATE & CONFIG */
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8J1hsT-Nb9eBOwDWkPG9Iff6d6Vb9lThA0RjIioCorPRpD3A5oYQ8fIjgXcjQ8J8fAw/exec";
         const QURAN_API = "https://equran.id/api/v2/surat";
         
-        // Database & State
         let DB = { dzikirPagi: [], dzikirPetang: [], doaHarian: [], dzikirShalat: [], doaQurani: [], bacaanShalat: [] };
         
         const AppState = { 
@@ -163,25 +171,27 @@
             search: '', 
             darkMode: false,
             prayerTimes: null,
-            location: 'Mencari lokasi...',
+            location: 'Menentukan Lokasi...',
             surahs: [],
             currentSurah: null,
             loading: false,
-            audio: null // Audio player instance
+            audio: null,
+            hijriDate: ''
         };
 
-        /**
-         * CORE FUNCTIONS
-         */
+        /** INITIALIZATION */
         function initApp() {
             const savedDark = localStorage.getItem('dark-mode') === 'true';
             if(savedDark) { AppState.darkMode = true; document.body.classList.add('dark-mode'); }
             
-            // Event Listeners for Settings
+            // Setup Settings Listeners
             document.getElementById('scale-ar').addEventListener('input', e => document.documentElement.style.setProperty('--scale-arabic', e.target.value));
             document.getElementById('scale-tr').addEventListener('input', e => document.documentElement.style.setProperty('--scale-translation', e.target.value));
 
-            // Initial Data Fetch
+            // Determine Hijri Date (Simple Approximation)
+            const date = new Date();
+            AppState.hijriDate = new Intl.DateTimeFormat('id-ID-u-ca-islamic', {day: 'numeric', month: 'long', year: 'numeric'}).format(date);
+
             fetchData();
             fetchPrayerTimes();
             render();
@@ -195,20 +205,17 @@
                 Object.keys(json).forEach(k => {
                     DB[k] = json[k].map(i => {
                         const n = {}; Object.keys(i).forEach(key => n[map[key.toLowerCase()] || key.toLowerCase()] = i[key]);
-                        // Ensure count is number
                         n.count = parseInt(n.count) || 1;
                         return n;
                     });
                 });
                 if(AppState.view === 'home') render();
-            } catch (e) { console.error("Database Error:", e); showToast("Gagal memuat data dzikir"); }
+            } catch (e) { showToast("Gagal memuat database"); }
         }
 
-        /**
-         * NAVIGATION & UI LOGIC
-         */
+        /** NAVIGATION LOGIC */
         function navigateTo(view, category = '') {
-            stopAudio(); // Always stop audio when navigating
+            stopAudio();
             AppState.view = view;
             if (category) {
                 AppState.category = category;
@@ -222,7 +229,7 @@
             AppState.darkMode = !AppState.darkMode;
             document.body.classList.toggle('dark-mode', AppState.darkMode);
             localStorage.setItem('dark-mode', AppState.darkMode);
-            render(); // Re-render to update icons/colors
+            render();
         }
 
         function showToast(msg) {
@@ -237,9 +244,8 @@
         }
 
         function copyToClipboard(text) {
-            // Fallback for older browsers or non-secure contexts
             const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
-            showToast("Berhasil disalin ke clipboard");
+            showToast("Teks berhasil disalin");
         }
 
         function openModal(id) {
@@ -254,38 +260,54 @@
             setTimeout(() => document.getElementById('modal-overlay').classList.add('hidden'), 300);
         }
 
-        /**
-         * TASBIH LOGIC
-         */
-        function handleTasbihTap() {
+        /** TASBIH GESTURE & LOGIC */
+        // Variables for touch/slide detection
+        let touchstartY = 0;
+        let touchendY = 0;
+
+        function handleTouchStart(e) {
+            touchstartY = e.changedTouches[0].screenY;
+        }
+
+        function handleTouchEnd(e) {
+            touchendY = e.changedTouches[0].screenY;
+            handleGesture();
+        }
+
+        function handleGesture() {
+            // Swipe Down detection (min 20px)
+            if (touchendY > touchstartY + 20) {
+                handleTasbihCount();
+            }
+        }
+
+        function handleTasbihCount() {
             const data = AppState.view === 'fav' ? getFavs() : DB[AppState.category];
             const item = data[AppState.index];
-            
-            // Initialize count if needed
             if (item.currentCount === undefined) item.currentCount = item.count;
             
             if (item.currentCount > 0) {
                 item.currentCount--;
                 
-                // Haptic Feedback
-                if (window.navigator.vibrate) window.navigator.vibrate(40);
+                // Visual & Haptic Feedback
+                if (window.navigator.vibrate) window.navigator.vibrate(30);
                 
-                // Animation
-                const container = document.getElementById('tasbih-interaction-area');
-                if(container) {
-                    container.classList.add('tap-active');
-                    setTimeout(() => container.classList.remove('tap-active'), 100);
+                // Animate Bead
+                const bead = document.getElementById('tasbih-bead');
+                if(bead) {
+                    bead.classList.remove('bead-active');
+                    void bead.offsetWidth; // trigger reflow
+                    bead.classList.add('bead-active');
                 }
 
-                // Update Visuals without full re-render for performance
                 updateProgressRing(item.currentCount, item.count);
                 const counterEl = document.getElementById('counter-display');
                 if(counterEl) counterEl.innerText = item.currentCount;
 
                 if(item.currentCount === 0) {
-                    showToast("Target tercapai! Alhamdulillah.");
+                    showToast("Target tercapai! Alhamdulillah");
                     if(window.navigator.vibrate) window.navigator.vibrate([100, 50, 100]);
-                    render(); // Re-render to show "Selesai" state/button
+                    render();
                 }
             }
         }
@@ -293,11 +315,9 @@
         function updateProgressRing(current, total) {
             const circle = document.querySelector('.progress-ring__circle');
             if(!circle) return;
-            
             const radius = circle.r.baseVal.value;
             const circumference = radius * 2 * Math.PI;
             const offset = circumference - ((total - current) / total) * circumference;
-            
             circle.style.strokeDashoffset = offset;
         }
 
@@ -310,7 +330,6 @@
         function getFavs() { return JSON.parse(localStorage.getItem('dzikir_favs') || "[]"); }
         function toggleFav(item) {
             let favs = getFavs();
-            // Compare logic slightly improved to check title/arabic
             const exists = favs.some(f => f.arabic === item.arabic);
             favs = exists ? favs.filter(f => f.arabic !== item.arabic) : [...favs, item];
             localStorage.setItem('dzikir_favs', JSON.stringify(favs));
@@ -318,22 +337,18 @@
             render();
         }
 
-        /**
-         * API INTEGRATIONS (PRAYER & QURAN)
-         */
+        /** DATA FETCHING (PRAYER & QURAN) */
         async function fetchPrayerTimes() {
             try {
                 if ("geolocation" in navigator) {
                     navigator.geolocation.getCurrentPosition(async (pos) => {
                         const { latitude, longitude } = pos.coords;
-                        const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=20`); // Method 20: Kemenag approx
+                        const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=20`);
                         const data = await res.json();
                         AppState.prayerTimes = data.data.timings;
-                        AppState.location = data.data.meta.timezone;
+                        AppState.location = data.data.meta.timezone.split('/')[1].replace('_', ' ');
                         if (AppState.view === 'prayer') render();
-                    }, () => {
-                        AppState.location = "Lokasi tidak diizinkan";
-                    });
+                    }, () => { AppState.location = "Jakarta"; }); // Default
                 }
             } catch (e) { console.error(e); }
         }
@@ -346,7 +361,7 @@
                 const res = await fetch(QURAN_API);
                 const data = await res.json();
                 AppState.surahs = data.data;
-            } catch (e) { showToast("Gagal memuat data Qur'an"); }
+            } catch (e) { showToast("Gagal memuat data"); }
             AppState.loading = false;
             render();
         }
@@ -364,73 +379,50 @@
             render();
         }
 
-        /**
-         * AUDIO PLAYER LOGIC
-         */
+        /** AUDIO & RENDER UTILS */
         function playAudio(url) {
             if (AppState.audio) {
                 AppState.audio.pause();
-                if (AppState.audio.src === url) {
-                    AppState.audio = null;
-                    render(); // Update icon to play
-                    return;
-                }
+                if (AppState.audio.src === url) { AppState.audio = null; render(); return; }
             }
             AppState.audio = new Audio(url);
             AppState.audio.play();
-            AppState.audio.onended = () => {
-                AppState.audio = null;
-                render();
-            };
-            AppState.audio.onerror = () => {
-                showToast("Audio tidak tersedia");
-                AppState.audio = null;
-                render();
-            };
-            render(); // Update icon to pause
+            AppState.audio.onended = () => { AppState.audio = null; render(); };
+            AppState.audio.onerror = () => { showToast("Audio tidak tersedia"); AppState.audio = null; render(); };
+            render();
         }
 
         function stopAudio() {
-            if (AppState.audio) {
-                AppState.audio.pause();
-                AppState.audio = null;
-            }
+            if (AppState.audio) { AppState.audio.pause(); AppState.audio = null; }
         }
 
-        /**
-         * RENDER FUNCTIONS
-         */
         function render() {
             const root = document.getElementById('app-root');
-            let content = '';
-            
             switch(AppState.view) {
-                case 'home': content = renderHome(); break;
-                case 'prayer': content = renderPrayer(); break;
-                case 'quran': content = renderQuran(); break;
-                case 'quran-detail': content = renderQuranDetail(); break;
+                case 'home': root.innerHTML = renderHome(); break;
+                case 'prayer': root.innerHTML = renderPrayer(); break;
+                case 'quran': root.innerHTML = renderQuran(); break;
+                case 'quran-detail': root.innerHTML = renderQuranDetail(); break;
                 case 'detail': 
-                case 'fav':
-                    content = renderDetail(); break;
-                default: content = renderHome();
+                case 'fav': root.innerHTML = renderDetail(); break;
+                default: root.innerHTML = renderHome();
             }
-            root.innerHTML = content;
         }
 
-        function renderHeader(title, options = {}) {
-            const { backBtn, rightBtn } = options;
+        /** COMPONENTS RENDERING */
+        function renderHeader(title, { backBtn, rightBtn } = {}) {
             return `
-                <div class="bg-white/95 backdrop-blur-md px-6 py-4 flex items-center justify-between border-b border-slate-100 z-30 sticky top-0 transition-colors duration-300">
+                <div class="glass-nav px-6 py-4 flex items-center justify-between z-30 sticky top-0">
                     <div class="flex items-center gap-4">
-                        ${backBtn ? `<button onclick="${backBtn}" class="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all"><i class="fa-solid fa-arrow-left"></i></button>` : ''}
-                        <h2 class="text-base font-bold text-slate-800 tracking-tight">${title}</h2>
+                        ${backBtn ? `<button onclick="${backBtn}" class="w-9 h-9 flex items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 transition-colors"><i class="fa-solid fa-arrow-left"></i></button>` : ''}
+                        <h2 class="text-lg font-bold text-slate-800 tracking-tight line-clamp-1">${title}</h2>
                     </div>
                     <div class="flex gap-2">
                         ${rightBtn || ''}
-                        <button onclick="toggleDarkMode()" class="text-slate-400 w-9 h-9 rounded-full flex items-center justify-center hover:bg-slate-100 transition-all">
+                        <button onclick="toggleDarkMode()" class="w-9 h-9 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors">
                             <i class="fa-solid ${AppState.darkMode ? 'fa-sun' : 'fa-moon'}"></i>
                         </button>
-                        <button onclick="openModal('settings-modal')" class="text-emerald-600 w-9 h-9 rounded-full flex items-center justify-center bg-emerald-50 hover:bg-emerald-100 transition-all">
+                        <button onclick="openModal('settings-modal')" class="w-9 h-9 rounded-full flex items-center justify-center text-emerald-600 bg-emerald-50 hover:bg-emerald-100 transition-colors">
                             <i class="fa-solid fa-sliders"></i>
                         </button>
                     </div>
@@ -440,47 +432,55 @@
 
         function renderHome() {
             const hours = new Date().getHours();
-            const greeting = hours < 11 ? "Selamat Pagi" : hours < 15 ? "Selamat Siang" : hours < 19 ? "Selamat Sore" : "Selamat Malam";
+            const greeting = hours < 11 ? "Selamat Pagi" : hours < 15 ? "Selamat Siang" : hours < 18 ? "Selamat Sore" : "Selamat Malam";
             
             const cats = [
-                { id: 'dzikirPagi', n: 'Dzikir Pagi', i: 'fa-sun', color: 'text-amber-500', bg: 'bg-amber-50' },
-                { id: 'dzikirPetang', n: 'Dzikir Petang', i: 'fa-cloud-moon', color: 'text-indigo-500', bg: 'bg-indigo-50' },
-                { id: 'doaHarian', n: 'Doa Harian', i: 'fa-hands-praying', color: 'text-emerald-500', bg: 'bg-emerald-50' },
-                { id: 'doaQurani', n: 'Doa Qur\'ani', i: 'fa-book-open-reader', color: 'text-teal-500', bg: 'bg-teal-50' },
-                { id: 'dzikirShalat', n: 'Dzikir Shalat', i: 'fa-mosque', color: 'text-cyan-500', bg: 'bg-cyan-50' },
-                { id: 'bacaanShalat', n: 'Bacaan Shalat', i: 'fa-person-praying', color: 'text-blue-500', bg: 'bg-blue-50' }
+                { id: 'dzikirPagi', n: 'Dzikir Pagi', i: 'fa-sun', c: 'from-amber-400 to-orange-500' },
+                { id: 'dzikirPetang', n: 'Dzikir Petang', i: 'fa-moon', c: 'from-indigo-400 to-purple-600' },
+                { id: 'doaHarian', n: 'Doa Harian', i: 'fa-hands-praying', c: 'from-emerald-400 to-teal-600' },
+                { id: 'doaQurani', n: 'Doa Qur\'an', i: 'fa-book-open', c: 'from-cyan-400 to-blue-600' },
+                { id: 'dzikirShalat', n: 'Dzikir Shalat', i: 'fa-mosque', c: 'from-rose-400 to-pink-600' },
+                { id: 'bacaanShalat', n: 'Bacaan Shalat', i: 'fa-person-praying', c: 'from-blue-400 to-indigo-600' }
             ].filter(c => c.n.toLowerCase().includes(AppState.search.toLowerCase()));
 
             return `
-                <div class="flex-grow overflow-y-auto px-6 pt-6 pb-28 hide-scroll bg-slate-50/50">
-                    <div class="flex justify-between items-start mb-6">
-                        <div>
-                            <p class="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1 opacity-80">${greeting}</p>
-                            <h1 class="text-2xl font-bold text-slate-800">Dzikir & Doa</h1>
+                <div class="flex-grow overflow-y-auto px-6 pb-32 hide-scroll bg-slate-50">
+                    <!-- Modern Banner -->
+                    <div class="mt-6 mb-8 relative rounded-[2.5rem] bg-emerald-600 p-8 text-white overflow-hidden shadow-xl shadow-emerald-200/50">
+                        <img src="https://www.transparenttextures.com/patterns/arabesque.png" class="absolute inset-0 opacity-10 mix-blend-overlay" />
+                        <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500 rounded-full blur-3xl opacity-50"></div>
+                        
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-2 mb-2 opacity-90">
+                                <i class="fa-solid fa-calendar-days text-xs"></i>
+                                <span class="text-xs font-medium tracking-wide uppercase">${AppState.hijriDate}</span>
+                            </div>
+                            <h1 class="text-3xl font-bold mb-1">${greeting}</h1>
+                            <p class="text-emerald-100 text-sm">Mari basahi lisan dengan dzikir.</p>
                         </div>
-                        <button onclick="openModal('support-modal')" class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-sm hover:scale-105 transition-transform shadow-sm">
-                            <i class="fa-solid fa-mug-hot"></i>
-                        </button>
                     </div>
 
-                    <!-- Search Bar -->
+                    <!-- Search -->
                     <div class="relative mb-8 group">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                             <i class="fa-solid fa-magnifying-glass text-slate-300 group-focus-within:text-emerald-500 transition-colors"></i>
                         </div>
-                        <input type="text" placeholder="Cari doa atau dzikir..." oninput="AppState.search = this.value; render()" value="${AppState.search}"
-                            class="w-full bg-white border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-sm group-focus-within:shadow-md">
+                        <input type="text" placeholder="Cari doa..." oninput="AppState.search = this.value; render()" value="${AppState.search}"
+                            class="w-full bg-white border-0 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-2 focus:ring-emerald-500/20 transition-all text-slate-700 placeholder:text-slate-400">
                     </div>
 
                     <!-- Categories Grid -->
                     <div class="grid grid-cols-2 gap-4">
                         ${cats.map(c => `
                             <button onclick="navigateTo('detail', '${c.id}')"
-                                class="bg-white p-5 rounded-[1.5rem] shadow-[0_2px_15px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-center gap-3 active:scale-95 transition-all hover:shadow-md group">
-                                <div class="w-14 h-14 rounded-full ${c.bg} ${c.color} flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300 shadow-inner">
+                                class="bg-white p-5 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col items-start gap-4 active:scale-95 transition-all hover:shadow-md group relative overflow-hidden">
+                                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br ${c.c} flex items-center justify-center text-white text-lg shadow-md group-hover:scale-110 transition-transform duration-300">
                                     <i class="fa-solid ${c.i}"></i>
                                 </div>
-                                <span class="text-sm font-bold text-slate-700 group-hover:text-emerald-700 transition-colors">${c.n}</span>
+                                <div>
+                                    <span class="text-sm font-bold text-slate-700 block text-left">${c.n}</span>
+                                    <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider group-hover:text-emerald-500 transition-colors">Buka Kategori</span>
+                                </div>
                             </button>
                         `).join('')}
                     </div>
@@ -491,44 +491,64 @@
 
         function renderPrayer() {
             const times = AppState.prayerTimes;
-            // Helper to determine next prayer could go here
+            const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes();
             
-            const list = times ? [
-                { n: 'Imsak', t: times.Imsak, i: 'fa-stopwatch' },
-                { n: 'Subuh', t: times.Fajr, i: 'fa-cloud-sun' },
-                { n: 'Dzuhur', t: times.Dhuhr, i: 'fa-sun' },
-                { n: 'Ashar', t: times.Asr, i: 'fa-cloud' },
-                { n: 'Maghrib', t: times.Maghrib, i: 'fa-cloud-moon' },
-                { n: 'Isya', t: times.Isha, i: 'fa-moon' }
-            ] : [];
+            const schedule = [
+                { n: 'Subuh', t: times?.Fajr },
+                { n: 'Dzuhur', t: times?.Dhuhr },
+                { n: 'Ashar', t: times?.Asr },
+                { n: 'Maghrib', t: times?.Maghrib },
+                { n: 'Isya', t: times?.Isha }
+            ];
+
+            // Find next prayer logic
+            let nextIdx = 0;
+            if(times) {
+                for(let i=0; i<schedule.length; i++) {
+                    const [h, m] = schedule[i].t.split(':');
+                    if(currentTime < parseInt(h)*60 + parseInt(m)) {
+                        nextIdx = i; break;
+                    }
+                    if(i === schedule.length-1) nextIdx = 0; // Next is Subuh tomorrow
+                }
+            }
 
             return `
                 ${renderHeader('Jadwal Shalat')}
-                <div class="flex-grow overflow-y-auto px-6 pt-6 pb-28 bg-slate-50 hide-scroll">
-                    <div class="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-[2rem] p-8 text-white mb-8 relative overflow-hidden shadow-lg shadow-emerald-200">
-                        <i class="fa-solid fa-mosque absolute -right-6 -bottom-6 text-9xl opacity-10 rotate-12"></i>
-                        <div class="relative z-10">
-                            <p class="text-[10px] font-bold uppercase opacity-70 tracking-widest mb-2"><i class="fa-solid fa-location-dot mr-1"></i> ${AppState.location.split('/')[1] || 'Lokasi'}</p>
-                            <h3 class="text-2xl font-bold mb-1">${new Date().toLocaleDateString('id-ID', { weekday: 'long' })}</h3>
-                            <p class="text-sm opacity-90 font-medium">${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                <div class="flex-grow overflow-y-auto px-6 pt-6 pb-32 bg-slate-50 hide-scroll">
+                    <!-- Highlight Card -->
+                    <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white mb-8 relative overflow-hidden shadow-2xl">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-600/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                        
+                        <div class="relative z-10 flex flex-col items-center text-center">
+                            <span class="px-3 py-1 bg-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest mb-4 backdrop-blur-md">
+                                <i class="fa-solid fa-location-dot mr-1"></i> ${AppState.location}
+                            </span>
+                            <h2 class="text-4xl font-bold mb-1">${times ? schedule[nextIdx].t : '--:--'}</h2>
+                            <p class="text-sm text-slate-400 font-medium mb-6">Menuju ${times ? schedule[nextIdx].n : '...'}</p>
+                            
+                            <div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+                                <div class="h-full bg-emerald-500 w-1/3"></div>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- List -->
                     <div class="space-y-3">
-                        ${times ? list.map(p => `
-                            <div class="bg-white p-5 rounded-3xl flex justify-between items-center border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                        ${times ? schedule.map((p, idx) => {
+                            const active = idx === nextIdx;
+                            return `
+                            <div class="flex justify-between items-center p-5 rounded-3xl border ${active ? 'bg-white border-emerald-500 shadow-lg shadow-emerald-100' : 'bg-white border-slate-100'} transition-all">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-2xl bg-slate-50 text-slate-500 flex items-center justify-center text-sm"><i class="fa-solid ${p.i}"></i></div>
-                                    <span class="font-bold text-slate-700">${p.n}</span>
+                                    <div class="w-10 h-10 rounded-full ${active ? 'bg-emerald-600 text-white' : 'bg-slate-50 text-slate-400'} flex items-center justify-center text-sm font-bold">
+                                        ${idx + 1}
+                                    </div>
+                                    <span class="font-bold ${active ? 'text-slate-800' : 'text-slate-500'}">${p.n}</span>
                                 </div>
-                                <span class="text-lg font-mono font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg">${p.t}</span>
+                                <span class="font-mono font-bold ${active ? 'text-emerald-600 text-lg' : 'text-slate-400'}">${p.t}</span>
                             </div>
-                        `).join('') : `
-                            <div class="flex flex-col items-center justify-center py-12 gap-4">
-                                <div class="w-8 h-8 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
-                                <span class="text-sm text-slate-400">Sedang memuat jadwal...</span>
-                            </div>
-                        `}
+                        `}).join('') : '<div class="text-center py-10 text-slate-400">Memuat jadwal...</div>'}
                     </div>
                 </div>
                 ${renderNav()}
@@ -540,29 +560,29 @@
             
             return `
                 ${renderHeader('Al-Qur\'an Digital')}
-                <div class="flex-grow overflow-y-auto bg-slate-50 flex flex-col hide-scroll pb-24">
-                    <div class="p-6 sticky top-0 z-20 bg-slate-50/95 backdrop-blur-sm">
-                        <div class="relative shadow-sm">
+                <div class="flex-grow overflow-y-auto bg-slate-50 flex flex-col hide-scroll pb-32">
+                    <div class="px-6 py-4 sticky top-0 z-20 bg-slate-50/95 backdrop-blur-sm">
+                        <div class="relative">
                             <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
                             <input type="text" placeholder="Cari Surah..." oninput="AppState.search = this.value; render()" value="${AppState.search}"
-                                class="w-full bg-white border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-emerald-500 transition-all">
+                                class="w-full bg-white border-none shadow-sm rounded-2xl py-3.5 pl-11 pr-4 text-sm focus:ring-2 focus:ring-emerald-500 transition-all">
                         </div>
                     </div>
 
-                    <div class="px-6 space-y-3 pb-6">
-                        ${AppState.loading ? `<div class="p-10 text-center text-slate-400 animate-pulse">Memuat daftar surah...</div>` :
+                    <div class="px-6 space-y-3 pb-4">
+                        ${AppState.loading ? `<div class="py-20 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin mb-2"></i><br>Memuat...</div>` :
                             filtered.map(s => `
-                            <button onclick="fetchSurahDetail(${s.nomor})" class="w-full bg-white p-4 rounded-2xl flex items-center gap-4 border border-slate-100 shadow-sm active:scale-[0.98] transition-all text-left hover:border-emerald-200 group">
-                                <div class="w-10 h-10 rounded-xl bg-slate-50 text-emerald-600 flex items-center justify-center font-bold text-sm group-hover:bg-emerald-600 group-hover:text-white transition-colors relative overflow-hidden">
-                                    ${s.nomor}
-                                    <div class="absolute inset-0 border-2 border-slate-100 rounded-xl group-hover:border-emerald-600"></div>
+                            <button onclick="fetchSurahDetail(${s.nomor})" class="w-full bg-white p-4 rounded-[1.25rem] flex items-center gap-4 border border-slate-100 shadow-sm active:scale-[0.99] transition-all text-left hover:border-emerald-200 group">
+                                <div class="w-11 h-11 rounded-xl bg-slate-50 text-emerald-600 flex items-center justify-center font-bold text-sm relative group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                    <div class="absolute inset-0 border border-slate-200 rounded-xl rotate-45 group-hover:border-emerald-500/50 transition-colors"></div>
+                                    <span class="relative z-10">${s.nomor}</span>
                                 </div>
                                 <div class="flex-grow">
-                                    <p class="font-bold text-slate-800 text-sm group-hover:text-emerald-700">${s.namaLatin}</p>
-                                    <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wide">${s.tempatTurun} • ${s.jumlahAyat} Ayat</p>
+                                    <p class="font-bold text-slate-800 text-sm mb-0.5">${s.namaLatin}</p>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">${s.tempatTurun} • ${s.jumlahAyat} Ayat</p>
                                 </div>
                                 <div class="text-right">
-                                    <p class="font-arabic text-xl text-slate-700 group-hover:text-emerald-600" dir="rtl">${s.nama}</p>
+                                    <p class="font-arabic text-xl text-slate-700 opacity-80" dir="rtl">${s.nama}</p>
                                 </div>
                             </button>
                         `).join('')}
@@ -574,47 +594,45 @@
 
         function renderQuranDetail() {
             const s = AppState.currentSurah;
-            if (AppState.loading || !s) return `<div class="h-full flex flex-col items-center justify-center p-20 gap-4"><div class="w-10 h-10 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin"></div><p class="text-sm text-slate-400">Memuat Ayat...</p></div>`;
+            if (AppState.loading || !s) return `<div class="h-full flex flex-col items-center justify-center"><div class="w-10 h-10 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin"></div></div>`;
             
-            // Check for audio availability
             const audioUrl = s.audioFull ? (s.audioFull['05'] || Object.values(s.audioFull)[0]) : null;
             const isPlaying = AppState.audio && AppState.audio.src === audioUrl && !AppState.audio.paused;
 
             return `
                 ${renderHeader(s.namaLatin, { backBtn: "navigateTo('quran')", rightBtn: audioUrl ? `
-                    <button onclick="playAudio('${audioUrl}')" class="w-9 h-9 rounded-full ${isPlaying ? 'bg-red-50 text-red-500 animate-pulse' : 'bg-emerald-50 text-emerald-600'} flex items-center justify-center transition-all">
-                        <i class="fa-solid ${isPlaying ? 'fa-pause' : 'fa-play'}"></i>
+                    <button onclick="playAudio('${audioUrl}')" class="w-9 h-9 rounded-full ${isPlaying ? 'bg-red-50 text-red-500 shadow-inner' : 'bg-emerald-50 text-emerald-600'} flex items-center justify-center transition-all">
+                        <i class="fa-solid ${isPlaying ? 'fa-stop' : 'fa-play'} text-xs"></i>
                     </button>
                 ` : '' })}
                 
-                <div class="flex-grow overflow-y-auto px-6 py-6 pb-28 bg-slate-50 hide-scroll">
-                    <!-- Surah Info Card -->
-                    <div class="bg-gradient-to-br from-emerald-600 to-teal-800 rounded-[2.5rem] p-8 text-white mb-8 text-center relative overflow-hidden shadow-xl shadow-emerald-200/50">
-                         <div class="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')]"></div>
+                <div class="flex-grow overflow-y-auto px-5 py-6 pb-32 bg-slate-50 hide-scroll">
+                    <!-- Surah Banner -->
+                    <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-[2rem] p-8 text-white mb-8 text-center relative overflow-hidden shadow-xl">
+                        <img src="https://www.transparenttextures.com/patterns/arabesque.png" class="absolute inset-0 opacity-10" />
                         <p class="font-arabic text-4xl mb-3 relative z-10">${s.nama}</p>
-                        <p class="text-sm opacity-90 font-medium relative z-10">${s.arti}</p>
-                        <div class="inline-flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full mt-2 backdrop-blur-sm relative z-10">
-                            <span class="text-[10px] font-bold uppercase tracking-wider">${s.tempatTurun}</span>
-                            <span class="w-1 h-1 rounded-full bg-white"></span>
-                            <span class="text-[10px] font-bold uppercase tracking-wider">${s.jumlahAyat} Ayat</span>
-                        </div>
-                        <div class="mt-6 pt-6 border-t border-white/20 relative z-10">
-                            <p class="font-arabic text-2xl">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
-                        </div>
+                        <p class="text-sm opacity-80 font-medium relative z-10 mb-4">${s.arti}</p>
+                        <div class="h-px w-24 bg-white/20 mx-auto mb-4"></div>
+                        <p class="font-arabic text-2xl relative z-10">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
                     </div>
 
+                    <!-- Ayat List -->
                     <div class="space-y-6">
                         ${s.ayat.map(a => `
-                            <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
-                                <div class="flex justify-between items-start mb-6">
-                                    <span class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs font-bold border border-emerald-100 shadow-sm">${a.nomorAyat}</span>
-                                    <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                         <button onclick="copyToClipboard('${a.teksArab}')" class="text-slate-300 hover:text-emerald-600"><i class="fa-solid fa-copy"></i></button>
-                                    </div>
+                            <div class="relative pl-0 pr-0 py-2">
+                                <!-- Nomor & Actions -->
+                                <div class="bg-slate-100/50 rounded-full px-4 py-1.5 inline-flex items-center gap-3 mb-4">
+                                    <span class="text-xs font-bold text-emerald-700">${s.nomor}:${a.nomorAyat}</span>
+                                    <button onclick="copyToClipboard('${a.teksArab}')" class="text-slate-400 hover:text-emerald-600 text-xs"><i class="fa-solid fa-copy"></i></button>
                                 </div>
-                                <p class="font-arabic-dynamic text-right text-slate-800 mb-6 leading-[2.5]" dir="rtl">${a.teksArab}</p>
-                                <p class="font-translation-dynamic text-slate-500 leading-relaxed text-justify">${a.teksIndonesia}</p>
+
+                                <!-- Arab -->
+                                <p class="font-arabic-dynamic text-right text-slate-800 mb-4 leading-[2.5]" dir="rtl" style="margin-right: 2px;">${a.teksArab}</p>
+                                
+                                <!-- Terjemah -->
+                                <p class="font-translation-dynamic text-slate-500 leading-relaxed text-justify border-l-2 border-emerald-100 pl-4">${a.teksIndonesia}</p>
                             </div>
+                            <div class="h-px bg-slate-100 w-full my-6"></div>
                         `).join('')}
                     </div>
                 </div>
@@ -624,22 +642,15 @@
 
         function renderDetail() {
             const data = AppState.view === 'fav' ? getFavs() : DB[AppState.category];
-            if (!data || data.length === 0) return `
-                <div class="flex flex-col h-full bg-slate-50 items-center justify-center p-8 text-center">
-                    <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center text-3xl text-slate-300 mb-4"><i class="fa-solid fa-box-open"></i></div>
-                    <p class="text-slate-500 mb-6 font-medium">Belum ada data tersedia.</p>
-                    <button onclick="navigateTo('home')" class="px-6 py-3 bg-emerald-600 text-white rounded-full font-bold shadow-lg shadow-emerald-200">Kembali ke Beranda</button>
-                </div>`;
+            if (!data || data.length === 0) return `<div class="h-full flex flex-col items-center justify-center p-10 text-center"><i class="fa-solid fa-box-open text-4xl text-slate-200 mb-4"></i><p class="text-slate-400">Data tidak ditemukan</p><button onclick="navigateTo('home')" class="mt-4 px-6 py-2 bg-emerald-50 text-emerald-600 rounded-full text-sm font-bold">Kembali</button></div>`;
             
             const item = data[AppState.index];
             const isFav = getFavs().some(f => f.arabic === item.arabic);
-            
-            // Perhitungan Progress untuk Circle
             const total = item.count || 1;
             const current = item.currentCount !== undefined ? item.currentCount : total;
             
-            // Circle Config
-            const radius = 60;
+            // Perhitungan Lingkaran
+            const radius = 40; // Diperkecil agar ikon tasbih tidak terlalu besar
             const circumference = radius * 2 * Math.PI;
             const offset = circumference - ((total - current) / total) * circumference;
 
@@ -647,85 +658,93 @@
                 <div class="flex flex-col h-full bg-slate-50">
                     ${renderHeader(item.title || 'Dzikir', { backBtn: "navigateTo('home')" })}
                     
-                    <!-- Top Progress Bar -->
-                    <div class="h-1.5 w-full bg-slate-200">
-                        <div class="h-full bg-emerald-500 transition-all duration-500 ease-out" style="width: ${((AppState.index + 1) / data.length) * 100}%"></div>
+                    <!-- Progress Bar Top -->
+                    <div class="h-1 w-full bg-slate-100">
+                        <div class="h-full bg-emerald-500 transition-all duration-300" style="width: ${((AppState.index + 1) / data.length) * 100}%"></div>
                     </div>
 
-                    <div class="flex-grow overflow-y-auto px-6 py-8 hide-scroll">
-                        <div class="bg-white rounded-[3rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col items-center relative mb-6">
-                            
-                            <!-- Favorite Button -->
-                            <button onclick='toggleFav(${JSON.stringify(item).replace(/'/g, "&apos;")})' class="absolute top-8 right-8 w-10 h-10 rounded-full flex items-center justify-center transition-all ${isFav ? 'bg-rose-50 text-rose-500' : 'bg-slate-50 text-slate-300 hover:text-slate-500'}">
-                                <i class="fa-solid fa-heart text-lg"></i>
+                    <div class="flex-grow overflow-y-auto px-6 py-8 hide-scroll pb-40">
+                        <!-- Card Dzikir -->
+                        <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50 relative mb-8">
+                            <button onclick='toggleFav(${JSON.stringify(item).replace(/'/g, "&apos;")})' class="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full transition-colors ${isFav ? 'text-rose-500 bg-rose-50' : 'text-slate-300 hover:bg-slate-50'}">
+                                <i class="fa-solid fa-heart"></i>
                             </button>
 
-                            <!-- Target Badge -->
-                            <div class="mb-8">
-                                <span class="px-4 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm">Target: ${total}x</span>
+                            <div class="text-center mb-6">
+                                <span class="px-3 py-1 bg-slate-100 text-slate-500 rounded-lg text-[10px] font-bold uppercase tracking-widest">Target: ${total}x</span>
                             </div>
 
-                            <!-- Arabic Text -->
                             <div class="w-full mb-8 text-center" dir="rtl">
                                 <p class="font-arabic-dynamic text-slate-800 leading-[2.5]">${item.arabic}</p>
                             </div>
 
-                            <!-- Translation & Latin -->
-                            <div class="w-full space-y-4 text-center mb-8">
-                                ${item.latin ? `<p class="text-sm text-emerald-600/90 italic font-medium leading-relaxed">${item.latin}</p>` : ''}
+                            <div class="space-y-4 text-center">
+                                ${item.latin ? `<p class="text-sm text-emerald-600/90 italic font-medium">${item.latin}</p>` : ''}
                                 <p class="font-translation-dynamic text-slate-500 leading-relaxed">${item.translation || ''}</p>
                             </div>
 
-                            <!-- Faedah Accordion Style -->
                             ${item.faedah ? `
-                                <div class="w-full bg-amber-50/50 rounded-2xl border border-amber-100/50 p-5 text-left mb-6">
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <i class="fa-solid fa-lightbulb text-amber-500 text-xs"></i>
-                                        <p class="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Keutamaan</p>
-                                    </div>
-                                    <p class="text-xs text-amber-800/80 italic leading-relaxed font-medium">${item.faedah}</p>
+                                <div class="mt-8 pt-6 border-t border-slate-100 text-left">
+                                    <p class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1">Keutamaan</p>
+                                    <p class="text-xs text-slate-600 leading-relaxed">${item.faedah}</p>
                                 </div>
                             ` : ''}
-                            
                         </div>
-                        
-                        <!-- Visual Tasbih Interaction Area -->
-                         <div class="flex flex-col items-center justify-center pb-8">
-                            <div id="tasbih-interaction-area" onclick="handleTasbihTap()" class="relative w-40 h-40 flex items-center justify-center cursor-pointer active:scale-95 transition-transform duration-100 group select-none">
-                                <!-- Background Circle -->
-                                <div class="absolute inset-0 rounded-full bg-white shadow-2xl shadow-emerald-100 border-4 border-slate-50"></div>
-                                
-                                <!-- SVG Progress -->
-                                <svg class="progress-ring absolute inset-0 transform -rotate-90 w-full h-full p-1" width="160" height="160">
-                                    <circle class="text-slate-100" stroke="currentColor" stroke-width="8" fill="transparent" r="60" cx="50%" cy="50%" />
-                                    <circle class="progress-ring__circle text-emerald-500" stroke="currentColor" stroke-width="8" stroke-linecap="round" fill="transparent" r="60" cx="50%" cy="50%" 
-                                        style="stroke-dasharray: ${circumference} ${circumference}; stroke-dashoffset: ${offset};" />
-                                </svg>
-                                
-                                <!-- Counter Text -->
-                                <div class="relative z-10 flex flex-col items-center">
-                                    <span id="counter-display" class="text-4xl font-mono font-bold text-slate-700">${current}</span>
-                                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">Ketuk</span>
-                                </div>
-
-                                <!-- Ripple Effect hint -->
-                                <div class="absolute inset-0 rounded-full border border-emerald-500/20 animate-ping opacity-20 pointer-events-none"></div>
-                            </div>
-                            
-                            ${current === 0 ? `
-                                <button onclick="resetTasbih()" class="mt-6 text-sm font-bold text-emerald-600 flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-full hover:bg-emerald-100 transition-colors">
-                                    <i class="fa-solid fa-rotate-right"></i> Ulangi
-                                </button>
-                            ` : ''}
-                        </div>
-
                     </div>
 
-                    <!-- Bottom Nav Controls -->
-                    <div class="glass-nav p-5 pb-8 flex justify-between items-center border-t border-slate-200/50">
-                        <button onclick="AppState.index--; render()" ${AppState.index === 0 ? 'disabled' : ''} class="w-14 h-14 rounded-2xl bg-slate-50 text-slate-400 disabled:opacity-20 flex items-center justify-center hover:bg-slate-100 transition-all"><i class="fa-solid fa-arrow-left"></i></button>
-                        <span class="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">${AppState.index + 1} / ${data.length}</span>
-                        <button onclick="AppState.index++; render()" ${AppState.index === data.length - 1 ? 'disabled' : ''} class="w-14 h-14 rounded-2xl bg-emerald-600 text-white shadow-lg shadow-emerald-200 disabled:opacity-20 flex items-center justify-center hover:bg-emerald-700 transition-all"><i class="fa-solid fa-arrow-right"></i></button>
+                    <!-- AREA TASBIH DIGITAL (FIXED BOTTOM) -->
+                    <div class="absolute bottom-24 left-0 right-0 flex flex-col items-center justify-end pb-4 z-20 pointer-events-none">
+                        
+                        <!-- Interaksi Tasbih: Klik atau Geser -->
+                        <div id="tasbih-interaction-area" 
+                            class="pointer-events-auto relative w-24 h-48 flex flex-col items-center justify-end group cursor-grab active:cursor-grabbing"
+                            onclick="handleTasbihCount()"
+                            ontouchstart="handleTouchStart(event)" 
+                            ontouchend="handleTouchEnd(event)">
+                            
+                            <!-- Track Slider Visual -->
+                            <div class="absolute top-0 bottom-0 w-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                <div class="w-full bg-emerald-200 h-1/2 rounded-full"></div>
+                            </div>
+                            
+                            <!-- The Bead (Biji Tasbih) -->
+                            <div id="tasbih-bead" class="relative z-10 w-16 h-16 rounded-[1.5rem] bg-emerald-600 shadow-xl shadow-emerald-300 flex items-center justify-center text-white mb-4 transition-transform active:scale-95">
+                                <i class="fa-solid fa-chevron-down text-lg opacity-50 animate-bounce"></i>
+                            </div>
+
+                            <!-- Circular Progress Indicator (Smaller) -->
+                            <div class="absolute -top-12 opacity-0 group-hover:opacity-100 transition-opacity bg-white px-3 py-1 rounded-full shadow-sm border border-slate-100">
+                                <span class="text-xs font-bold text-emerald-600">Usap / Ketuk</span>
+                            </div>
+                        </div>
+
+                        <!-- Counter Text Overlay -->
+                        <div class="absolute bottom-8 right-8 pointer-events-none">
+                            <div class="relative w-20 h-20 flex items-center justify-center">
+                                <svg class="progress-ring absolute inset-0 transform -rotate-90 w-full h-full p-1" width="80" height="80">
+                                    <circle class="text-slate-100" stroke="currentColor" stroke-width="6" fill="transparent" r="32" cx="50%" cy="50%" />
+                                    <circle class="progress-ring__circle text-emerald-500" stroke="currentColor" stroke-width="6" stroke-linecap="round" fill="white" r="32" cx="50%" cy="50%" 
+                                        style="stroke-dasharray: ${circumference} ${circumference}; stroke-dashoffset: ${offset};" />
+                                </svg>
+                                <span id="counter-display" class="text-xl font-mono font-bold text-emerald-600 absolute">${current}</span>
+                            </div>
+                        </div>
+
+                        ${current === 0 ? `
+                            <button onclick="resetTasbih()" class="pointer-events-auto absolute bottom-10 left-8 w-12 h-12 bg-white rounded-full shadow-lg text-emerald-600 flex items-center justify-center hover:bg-emerald-50">
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+
+                    <!-- Navigasi Prev/Next -->
+                    <div class="glass-nav p-4 flex justify-between items-center z-30 border-t border-slate-100/50">
+                         <button onclick="AppState.index--; render()" ${AppState.index === 0 ? 'disabled' : ''} class="w-12 h-12 rounded-xl bg-slate-50 text-slate-400 disabled:opacity-20 flex items-center justify-center hover:bg-slate-100 transition-all"><i class="fa-solid fa-arrow-left"></i></button>
+                         <div class="flex flex-col items-center">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Halaman</span>
+                            <span class="text-sm font-bold text-slate-700">${AppState.index + 1} <span class="text-slate-300">/</span> ${data.length}</span>
+                         </div>
+                         <button onclick="AppState.index++; render()" ${AppState.index === data.length - 1 ? 'disabled' : ''} class="w-12 h-12 rounded-xl bg-emerald-600 text-white shadow-lg shadow-emerald-200 disabled:opacity-20 flex items-center justify-center hover:bg-emerald-700 transition-all"><i class="fa-solid fa-arrow-right"></i></button>
                     </div>
                 </div>
             `;
@@ -741,22 +760,25 @@
             const activeId = AppState.view === 'detail' ? 'home' : (AppState.view === 'quran-detail' ? 'quran' : AppState.view);
 
             return `
-                <div class="glass-nav absolute bottom-0 left-0 right-0 h-24 flex items-start pt-4 justify-around px-2 z-40 rounded-t-[2rem]">
-                    ${tabs.map(t => `
+                <div class="glass-nav absolute bottom-6 left-6 right-6 h-20 flex items-center justify-around px-2 z-40 rounded-[2rem] border border-white/50 shadow-2xl shadow-slate-200/50">
+                    ${tabs.map(t => {
+                        const isActive = activeId === t.id;
+                        return `
                         <button onclick="navigateTo('${t.id}')" 
-                            class="flex flex-col items-center gap-1.5 w-1/4 group relative">
-                            <div class="w-12 h-8 rounded-2xl flex items-center justify-center transition-all duration-300 ${activeId === t.id ? 'bg-emerald-100 text-emerald-600 -translate-y-1' : 'text-slate-300 group-hover:text-emerald-400'}">
+                            class="relative flex flex-col items-center justify-center w-16 h-full group">
+                            <div class="absolute inset-x-0 top-0 h-1 bg-emerald-500 rounded-b-full transition-all duration-300 ${isActive ? 'w-8 mx-auto opacity-100' : 'w-0 opacity-0'}"></div>
+                            
+                            <div class="w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 ${isActive ? 'bg-emerald-50 text-emerald-600 translate-y-1' : 'text-slate-300 group-hover:text-emerald-400'}">
                                 <i class="fa-solid ${t.i} text-lg"></i>
                             </div>
-                            <span class="text-[10px] font-bold tracking-wide transition-colors ${activeId === t.id ? 'text-emerald-700' : 'text-slate-300'}">${t.n}</span>
-                            ${activeId === t.id ? '<span class="absolute -bottom-2 w-1 h-1 bg-emerald-500 rounded-full"></span>' : ''}
+                            <span class="text-[9px] font-bold tracking-wide mt-1 transition-colors duration-300 ${isActive ? 'text-emerald-600 translate-y-1' : 'text-slate-300 scale-0 h-0'}">${t.n}</span>
                         </button>
-                    `).join('')}
+                    `}).join('')}
                 </div>
             `;
         }
 
-        // Initialize
+        // Jalankan Aplikasi
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
