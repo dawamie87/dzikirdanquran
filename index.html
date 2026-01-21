@@ -32,7 +32,8 @@
             font-family: 'Inter', sans-serif; 
             transition: background-color 0.3s, color 0.3s; 
             -webkit-tap-highlight-color: transparent; 
-            overscroll-behavior-y: none; /* Mencegah pull-to-refresh pada mobile */
+            overscroll-behavior-y: none;
+            touch-action: pan-y; /* Allow vertical scroll, handle horizontal in JS */
         }
         
         /* Dark Mode Styling */
@@ -41,15 +42,15 @@
         .dark-mode .bg-white { background-color: #1e293b !important; }
         .dark-mode .bg-slate-50 { background-color: #0f172a !important; }
         .dark-mode .bg-slate-100 { background-color: #334155 !important; }
+        .dark-mode .bg-slate-900 { background-color: #020617 !important; }
         .dark-mode .text-slate-800 { color: #f1f5f9 !important; }
         .dark-mode .text-slate-700 { color: #e2e8f0 !important; }
         .dark-mode .text-slate-600 { color: #cbd5e1 !important; }
         .dark-mode .text-slate-500 { color: #94a3b8 !important; }
         .dark-mode .text-slate-400 { color: #64748b !important; }
         .dark-mode .border-slate-100, .dark-mode .border-slate-200 { border-color: #334155 !important; }
-        .dark-mode .glass-nav { background: rgba(15, 23, 42, 0.95); border-top: 1px solid rgba(255,255,255,0.05); }
-        .dark-mode .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5); }
-
+        .dark-mode .glass-nav { background: #1e293b; border-top: 1px solid #334155; }
+        
         /* Typography Helper */
         .font-arabic-dynamic {
             font-family: var(--font-arabic);
@@ -61,12 +62,12 @@
             font-size: calc(0.9rem * var(--scale-translation));
         }
 
-        /* Navigasi Glassmorphism yang Lebih Rapi */
+        /* Navigasi Fixed Bottom (Standard) */
         .glass-nav {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+            background: #ffffff;
+            border-top: 1px solid #f1f5f9;
+            padding-bottom: env(safe-area-inset-bottom);
+            box-shadow: 0 -1px 3px rgba(0,0,0,0.05);
         }
 
         /* Hide Scrollbar */
@@ -260,24 +261,54 @@
             setTimeout(() => document.getElementById('modal-overlay').classList.add('hidden'), 300);
         }
 
-        /** TASBIH GESTURE & LOGIC */
-        // Variables for touch/slide detection
+        /** GESTURE LOGIC (UNIFIED) */
+        let touchstartX = 0;
         let touchstartY = 0;
+        let touchendX = 0;
         let touchendY = 0;
 
         function handleTouchStart(e) {
+            touchstartX = e.changedTouches[0].screenX;
             touchstartY = e.changedTouches[0].screenY;
         }
 
         function handleTouchEnd(e) {
+            touchendX = e.changedTouches[0].screenX;
             touchendY = e.changedTouches[0].screenY;
-            handleGesture();
+            handleGesture(e.target);
         }
 
-        function handleGesture() {
-            // Swipe Down detection (min 20px)
-            if (touchendY > touchstartY + 20) {
-                handleTasbihCount();
+        function handleGesture(target) {
+            const diffX = touchendX - touchstartX;
+            const diffY = touchendY - touchstartY;
+
+            // Horizontal Swipe (Navigasi Kiri/Kanan)
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (Math.abs(diffX) > 50) { // Threshold
+                    // Cek jika sedang di mode detail/dzikir
+                    if (AppState.view === 'detail' || AppState.view === 'fav') {
+                        const data = AppState.view === 'fav' ? getFavs() : DB[AppState.category];
+                        if (diffX > 0 && AppState.index > 0) {
+                            // Swipe Right -> Prev
+                            AppState.index--;
+                            render();
+                        } else if (diffX < 0 && AppState.index < data.length - 1) {
+                            // Swipe Left -> Next
+                            AppState.index++;
+                            render();
+                        }
+                    }
+                }
+            } 
+            // Vertical Swipe (Untuk Tasbih)
+            else {
+                if (diffY > 50) { // Swipe Down
+                     // Cek jika target ada di dalam area tasbih
+                     const tasbihArea = document.getElementById('tasbih-interaction-area');
+                     if (tasbihArea && (tasbihArea.contains(target) || target.id === 'tasbih-interaction-area')) {
+                        handleTasbihCount();
+                     }
+                }
             }
         }
 
@@ -288,11 +319,8 @@
             
             if (item.currentCount > 0) {
                 item.currentCount--;
-                
-                // Visual & Haptic Feedback
                 if (window.navigator.vibrate) window.navigator.vibrate(30);
                 
-                // Animate Bead
                 const bead = document.getElementById('tasbih-bead');
                 if(bead) {
                     bead.classList.remove('bead-active');
@@ -348,7 +376,7 @@
                         AppState.prayerTimes = data.data.timings;
                         AppState.location = data.data.meta.timezone.split('/')[1].replace('_', ' ');
                         if (AppState.view === 'prayer') render();
-                    }, () => { AppState.location = "Jakarta"; }); // Default
+                    }, () => { AppState.location = "Jakarta"; }); 
                 }
             } catch (e) { console.error(e); }
         }
@@ -412,7 +440,7 @@
         /** COMPONENTS RENDERING */
         function renderHeader(title, { backBtn, rightBtn } = {}) {
             return `
-                <div class="glass-nav px-6 py-4 flex items-center justify-between z-30 sticky top-0">
+                <div class="bg-white px-6 py-4 flex items-center justify-between z-30 sticky top-0 shadow-sm">
                     <div class="flex items-center gap-4">
                         ${backBtn ? `<button onclick="${backBtn}" class="w-9 h-9 flex items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 transition-colors"><i class="fa-solid fa-arrow-left"></i></button>` : ''}
                         <h2 class="text-lg font-bold text-slate-800 tracking-tight line-clamp-1">${title}</h2>
@@ -435,55 +463,71 @@
             const greeting = hours < 11 ? "Selamat Pagi" : hours < 15 ? "Selamat Siang" : hours < 18 ? "Selamat Sore" : "Selamat Malam";
             
             const cats = [
-                { id: 'dzikirPagi', n: 'Dzikir Pagi', i: 'fa-sun', c: 'from-amber-400 to-orange-500' },
-                { id: 'dzikirPetang', n: 'Dzikir Petang', i: 'fa-moon', c: 'from-indigo-400 to-purple-600' },
-                { id: 'doaHarian', n: 'Doa Harian', i: 'fa-hands-praying', c: 'from-emerald-400 to-teal-600' },
-                { id: 'doaQurani', n: 'Doa Qur\'an', i: 'fa-book-open', c: 'from-cyan-400 to-blue-600' },
-                { id: 'dzikirShalat', n: 'Dzikir Shalat', i: 'fa-mosque', c: 'from-rose-400 to-pink-600' },
-                { id: 'bacaanShalat', n: 'Bacaan Shalat', i: 'fa-person-praying', c: 'from-blue-400 to-indigo-600' }
+                { id: 'dzikirPagi', n: 'Pagi', i: 'fa-sun', c: 'from-amber-400 to-orange-500' },
+                { id: 'dzikirPetang', n: 'Petang', i: 'fa-moon', c: 'from-indigo-400 to-purple-600' },
+                { id: 'doaHarian', n: 'Harian', i: 'fa-hands-praying', c: 'from-emerald-400 to-teal-600' },
+                { id: 'doaQurani', n: 'Qur\'an', i: 'fa-book-open', c: 'from-cyan-400 to-blue-600' },
+                { id: 'dzikirShalat', n: 'Shalat', i: 'fa-mosque', c: 'from-rose-400 to-pink-600' },
+                { id: 'bacaanShalat', n: 'Bacaan', i: 'fa-person-praying', c: 'from-blue-400 to-indigo-600' }
             ].filter(c => c.n.toLowerCase().includes(AppState.search.toLowerCase()));
 
             return `
-                <div class="flex-grow overflow-y-auto px-6 pb-32 hide-scroll bg-slate-50">
-                    <!-- Modern Banner -->
-                    <div class="mt-6 mb-8 relative rounded-[2.5rem] bg-emerald-600 p-8 text-white overflow-hidden shadow-xl shadow-emerald-200/50">
-                        <img src="https://www.transparenttextures.com/patterns/arabesque.png" class="absolute inset-0 opacity-10 mix-blend-overlay" />
-                        <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500 rounded-full blur-3xl opacity-50"></div>
-                        
-                        <div class="relative z-10">
-                            <div class="flex items-center gap-2 mb-2 opacity-90">
-                                <i class="fa-solid fa-calendar-days text-xs"></i>
-                                <span class="text-xs font-medium tracking-wide uppercase">${AppState.hijriDate}</span>
+                <div class="flex flex-col h-full bg-slate-50">
+                    <!-- Top Section (Banner) -->
+                    <div class="p-6 pb-2 bg-white rounded-b-[2rem] shadow-sm z-10">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h1 class="text-2xl font-bold text-slate-800">${greeting}</h1>
+                                <div class="flex items-center gap-2 mt-1 text-slate-500 text-xs">
+                                    <i class="fa-regular fa-calendar"></i>
+                                    <span>${AppState.hijriDate}</span>
+                                </div>
                             </div>
-                            <h1 class="text-3xl font-bold mb-1">${greeting}</h1>
-                            <p class="text-emerald-100 text-sm">Mari basahi lisan dengan dzikir.</p>
+                             <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-xs shadow-inner">
+                                ${new Date().getDate()}
+                            </div>
+                        </div>
+
+                        <!-- Search Compact -->
+                        <div class="relative mb-4">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-magnifying-glass text-slate-300"></i>
+                            </div>
+                            <input type="text" placeholder="Cari doa..." oninput="AppState.search = this.value; render()" value="${AppState.search}"
+                                class="w-full bg-slate-100 border-none rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-emerald-500/20 transition-all">
                         </div>
                     </div>
 
-                    <!-- Search -->
-                    <div class="relative mb-8 group">
-                        <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                            <i class="fa-solid fa-magnifying-glass text-slate-300 group-focus-within:text-emerald-500 transition-colors"></i>
-                        </div>
-                        <input type="text" placeholder="Cari doa..." oninput="AppState.search = this.value; render()" value="${AppState.search}"
-                            class="w-full bg-white border-0 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-2 focus:ring-emerald-500/20 transition-all text-slate-700 placeholder:text-slate-400">
-                    </div>
+                    <!-- Categories Grid (Full Space) -->
+                    <div class="flex-grow p-6 overflow-y-auto hide-scroll">
+                        <div class="grid grid-cols-2 gap-4 h-full content-start">
+                             <!-- Highlight Banner Card -->
+                            <div class="col-span-2 bg-emerald-600 rounded-3xl p-6 text-white relative overflow-hidden shadow-lg shadow-emerald-200 mb-2">
+                                <img src="https://www.transparenttextures.com/patterns/arabesque.png" class="absolute inset-0 opacity-10 mix-blend-overlay" />
+                                <div class="relative z-10 flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs font-medium text-emerald-100 uppercase tracking-wider mb-1">Inspirasi Hari Ini</p>
+                                        <p class="font-bold text-lg leading-tight">"Ingatlah, hanya dengan mengingat Allah hati menjadi tenteram."</p>
+                                        <p class="text-xs text-emerald-200 mt-2 font-mono">Q.S Ar-Ra'd: 28</p>
+                                    </div>
+                                    <i class="fa-solid fa-heart-circle-bolt text-4xl text-emerald-400 opacity-50"></i>
+                                </div>
+                            </div>
 
-                    <!-- Categories Grid -->
-                    <div class="grid grid-cols-2 gap-4">
-                        ${cats.map(c => `
-                            <button onclick="navigateTo('detail', '${c.id}')"
-                                class="bg-white p-5 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col items-start gap-4 active:scale-95 transition-all hover:shadow-md group relative overflow-hidden">
-                                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br ${c.c} flex items-center justify-center text-white text-lg shadow-md group-hover:scale-110 transition-transform duration-300">
-                                    <i class="fa-solid ${c.i}"></i>
-                                </div>
-                                <div>
-                                    <span class="text-sm font-bold text-slate-700 block text-left">${c.n}</span>
-                                    <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider group-hover:text-emerald-500 transition-colors">Buka Kategori</span>
-                                </div>
-                            </button>
-                        `).join('')}
+                            ${cats.map(c => `
+                                <button onclick="navigateTo('detail', '${c.id}')"
+                                    class="bg-white p-4 rounded-2xl shadow-sm border border-slate-50 flex flex-col items-center justify-center gap-3 active:scale-95 transition-all hover:border-emerald-200 aspect-[4/3]">
+                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br ${c.c} flex items-center justify-center text-white text-lg shadow-md">
+                                        <i class="fa-solid ${c.i}"></i>
+                                    </div>
+                                    <span class="text-xs font-bold text-slate-700">${c.n}</span>
+                                </button>
+                            `).join('')}
+                        </div>
                     </div>
+                    
+                    <!-- Spacing for Bottom Nav -->
+                    <div class="h-20"></div>
                 </div>
                 ${renderNav()}
             `;
@@ -495,14 +539,13 @@
             const currentTime = now.getHours() * 60 + now.getMinutes();
             
             const schedule = [
-                { n: 'Subuh', t: times?.Fajr },
-                { n: 'Dzuhur', t: times?.Dhuhr },
-                { n: 'Ashar', t: times?.Asr },
-                { n: 'Maghrib', t: times?.Maghrib },
-                { n: 'Isya', t: times?.Isha }
+                { n: 'Subuh', t: times?.Fajr, i: 'fa-cloud-sun' },
+                { n: 'Dzuhur', t: times?.Dhuhr, i: 'fa-sun' },
+                { n: 'Ashar', t: times?.Asr, i: 'fa-cloud' },
+                { n: 'Maghrib', t: times?.Maghrib, i: 'fa-cloud-moon' },
+                { n: 'Isya', t: times?.Isha, i: 'fa-moon' }
             ];
 
-            // Find next prayer logic
             let nextIdx = 0;
             if(times) {
                 for(let i=0; i<schedule.length; i++) {
@@ -510,71 +553,71 @@
                     if(currentTime < parseInt(h)*60 + parseInt(m)) {
                         nextIdx = i; break;
                     }
-                    if(i === schedule.length-1) nextIdx = 0; // Next is Subuh tomorrow
+                    if(i === schedule.length-1) nextIdx = 0;
                 }
             }
 
             return `
-                ${renderHeader('Jadwal Shalat')}
-                <div class="flex-grow overflow-y-auto px-6 pt-6 pb-32 bg-slate-50 hide-scroll">
-                    <!-- Highlight Card -->
-                    <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white mb-8 relative overflow-hidden shadow-2xl">
-                        <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-600/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-                        
-                        <div class="relative z-10 flex flex-col items-center text-center">
-                            <span class="px-3 py-1 bg-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest mb-4 backdrop-blur-md">
-                                <i class="fa-solid fa-location-dot mr-1"></i> ${AppState.location}
-                            </span>
-                            <h2 class="text-4xl font-bold mb-1">${times ? schedule[nextIdx].t : '--:--'}</h2>
-                            <p class="text-sm text-slate-400 font-medium mb-6">Menuju ${times ? schedule[nextIdx].n : '...'}</p>
+                <div class="flex flex-col h-full bg-slate-50">
+                    ${renderHeader('Jadwal Shalat')}
+                    <div class="flex-grow p-6 flex flex-col hide-scroll">
+                        <!-- Main Card Dashboard -->
+                        <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white mb-6 relative overflow-hidden shadow-2xl flex-shrink-0">
+                            <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-600/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                             
-                            <div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
-                                <div class="h-full bg-emerald-500 w-1/3"></div>
+                            <div class="relative z-10 text-center">
+                                <span class="px-3 py-1 bg-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest mb-4 inline-block backdrop-blur-md">
+                                    <i class="fa-solid fa-location-dot mr-1"></i> ${AppState.location}
+                                </span>
+                                <div class="my-4">
+                                    <p class="text-sm text-slate-400 mb-1">Waktu Shalat Berikutnya</p>
+                                    <h2 class="text-5xl font-bold font-mono tracking-tighter">${times ? schedule[nextIdx].t : '--:--'}</h2>
+                                    <p class="text-emerald-400 font-bold mt-1 text-lg">${times ? schedule[nextIdx].n : '...'}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- List -->
-                    <div class="space-y-3">
-                        ${times ? schedule.map((p, idx) => {
-                            const active = idx === nextIdx;
-                            return `
-                            <div class="flex justify-between items-center p-5 rounded-3xl border ${active ? 'bg-white border-emerald-500 shadow-lg shadow-emerald-100' : 'bg-white border-slate-100'} transition-all">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-full ${active ? 'bg-emerald-600 text-white' : 'bg-slate-50 text-slate-400'} flex items-center justify-center text-sm font-bold">
-                                        ${idx + 1}
+                        <!-- Compact List -->
+                        <div class="flex-grow flex flex-col justify-between pb-20">
+                            ${times ? schedule.map((p, idx) => {
+                                const active = idx === nextIdx;
+                                return `
+                                <div class="flex justify-between items-center p-4 rounded-2xl border ${active ? 'bg-white border-emerald-500 shadow-md transform scale-105' : 'bg-white/50 border-slate-100'} transition-all">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-8 h-8 rounded-full ${active ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-400'} flex items-center justify-center text-xs">
+                                            <i class="fa-solid ${p.i}"></i>
+                                        </div>
+                                        <span class="font-bold text-sm ${active ? 'text-slate-800' : 'text-slate-500'}">${p.n}</span>
                                     </div>
-                                    <span class="font-bold ${active ? 'text-slate-800' : 'text-slate-500'}">${p.n}</span>
+                                    <span class="font-mono font-bold text-sm ${active ? 'text-emerald-600' : 'text-slate-400'}">${p.t}</span>
                                 </div>
-                                <span class="font-mono font-bold ${active ? 'text-emerald-600 text-lg' : 'text-slate-400'}">${p.t}</span>
-                            </div>
-                        `}).join('') : '<div class="text-center py-10 text-slate-400">Memuat jadwal...</div>'}
+                            `}).join('') : '<div class="text-center py-10 text-slate-400">Memuat jadwal...</div>'}
+                        </div>
                     </div>
+                    ${renderNav()}
                 </div>
-                ${renderNav()}
             `;
         }
 
         function renderQuran() {
             const filtered = AppState.surahs.filter(s => s.namaLatin.toLowerCase().includes(AppState.search.toLowerCase()));
-            
             return `
-                ${renderHeader('Al-Qur\'an Digital')}
-                <div class="flex-grow overflow-y-auto bg-slate-50 flex flex-col hide-scroll pb-32">
-                    <div class="px-6 py-4 sticky top-0 z-20 bg-slate-50/95 backdrop-blur-sm">
+                <div class="flex flex-col h-full bg-slate-50">
+                    ${renderHeader('Al-Qur\'an Digital')}
+                    
+                    <div class="px-6 py-4 bg-white border-b border-slate-100">
                         <div class="relative">
                             <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
                             <input type="text" placeholder="Cari Surah..." oninput="AppState.search = this.value; render()" value="${AppState.search}"
-                                class="w-full bg-white border-none shadow-sm rounded-2xl py-3.5 pl-11 pr-4 text-sm focus:ring-2 focus:ring-emerald-500 transition-all">
+                                class="w-full bg-slate-50 border-none shadow-inner rounded-xl py-3 pl-11 pr-4 text-sm focus:ring-2 focus:ring-emerald-500 transition-all">
                         </div>
                     </div>
 
-                    <div class="px-6 space-y-3 pb-4">
+                    <div class="flex-grow overflow-y-auto px-6 py-4 space-y-3 pb-24 hide-scroll">
                         ${AppState.loading ? `<div class="py-20 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin mb-2"></i><br>Memuat...</div>` :
                             filtered.map(s => `
-                            <button onclick="fetchSurahDetail(${s.nomor})" class="w-full bg-white p-4 rounded-[1.25rem] flex items-center gap-4 border border-slate-100 shadow-sm active:scale-[0.99] transition-all text-left hover:border-emerald-200 group">
-                                <div class="w-11 h-11 rounded-xl bg-slate-50 text-emerald-600 flex items-center justify-center font-bold text-sm relative group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                                    <div class="absolute inset-0 border border-slate-200 rounded-xl rotate-45 group-hover:border-emerald-500/50 transition-colors"></div>
+                            <button onclick="fetchSurahDetail(${s.nomor})" class="w-full bg-white p-4 rounded-2xl flex items-center gap-4 border border-slate-100 shadow-sm active:scale-[0.98] transition-all text-left group">
+                                <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs relative overflow-hidden group-hover:bg-emerald-600 group-hover:text-white transition-colors">
                                     <span class="relative z-10">${s.nomor}</span>
                                 </div>
                                 <div class="flex-grow">
@@ -582,13 +625,13 @@
                                     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">${s.tempatTurun} • ${s.jumlahAyat} Ayat</p>
                                 </div>
                                 <div class="text-right">
-                                    <p class="font-arabic text-xl text-slate-700 opacity-80" dir="rtl">${s.nama}</p>
+                                    <p class="font-arabic text-lg text-slate-700 opacity-80" dir="rtl">${s.nama}</p>
                                 </div>
                             </button>
                         `).join('')}
                     </div>
+                    ${renderNav()}
                 </div>
-                ${renderNav()}
             `;
         }
 
@@ -600,43 +643,38 @@
             const isPlaying = AppState.audio && AppState.audio.src === audioUrl && !AppState.audio.paused;
 
             return `
-                ${renderHeader(s.namaLatin, { backBtn: "navigateTo('quran')", rightBtn: audioUrl ? `
-                    <button onclick="playAudio('${audioUrl}')" class="w-9 h-9 rounded-full ${isPlaying ? 'bg-red-50 text-red-500 shadow-inner' : 'bg-emerald-50 text-emerald-600'} flex items-center justify-center transition-all">
-                        <i class="fa-solid ${isPlaying ? 'fa-stop' : 'fa-play'} text-xs"></i>
-                    </button>
-                ` : '' })}
-                
-                <div class="flex-grow overflow-y-auto px-5 py-6 pb-32 bg-slate-50 hide-scroll">
-                    <!-- Surah Banner -->
-                    <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-[2rem] p-8 text-white mb-8 text-center relative overflow-hidden shadow-xl">
-                        <img src="https://www.transparenttextures.com/patterns/arabesque.png" class="absolute inset-0 opacity-10" />
-                        <p class="font-arabic text-4xl mb-3 relative z-10">${s.nama}</p>
-                        <p class="text-sm opacity-80 font-medium relative z-10 mb-4">${s.arti}</p>
-                        <div class="h-px w-24 bg-white/20 mx-auto mb-4"></div>
-                        <p class="font-arabic text-2xl relative z-10">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
-                    </div>
+                <div class="flex flex-col h-full bg-slate-50">
+                    ${renderHeader(s.namaLatin, { backBtn: "navigateTo('quran')", rightBtn: audioUrl ? `
+                        <button onclick="playAudio('${audioUrl}')" class="w-9 h-9 rounded-full ${isPlaying ? 'bg-red-50 text-red-500 shadow-inner' : 'bg-emerald-50 text-emerald-600'} flex items-center justify-center transition-all">
+                            <i class="fa-solid ${isPlaying ? 'fa-stop' : 'fa-play'} text-xs"></i>
+                        </button>
+                    ` : '' })}
+                    
+                    <div class="flex-grow overflow-y-auto px-5 py-6 pb-24 hide-scroll">
+                        <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-[2rem] p-8 text-white mb-8 text-center relative overflow-hidden shadow-xl">
+                            <img src="https://www.transparenttextures.com/patterns/arabesque.png" class="absolute inset-0 opacity-10" />
+                            <p class="font-arabic text-3xl mb-2 relative z-10">${s.nama}</p>
+                            <p class="text-sm opacity-80 font-medium relative z-10 mb-4">${s.arti}</p>
+                            <div class="h-px w-24 bg-white/20 mx-auto mb-4"></div>
+                            <p class="font-arabic text-xl relative z-10">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
+                        </div>
 
-                    <!-- Ayat List -->
-                    <div class="space-y-6">
-                        ${s.ayat.map(a => `
-                            <div class="relative pl-0 pr-0 py-2">
-                                <!-- Nomor & Actions -->
-                                <div class="bg-slate-100/50 rounded-full px-4 py-1.5 inline-flex items-center gap-3 mb-4">
-                                    <span class="text-xs font-bold text-emerald-700">${s.nomor}:${a.nomorAyat}</span>
-                                    <button onclick="copyToClipboard('${a.teksArab}')" class="text-slate-400 hover:text-emerald-600 text-xs"><i class="fa-solid fa-copy"></i></button>
+                        <div class="space-y-6">
+                            ${s.ayat.map(a => `
+                                <div class="relative pl-0 pr-0 py-2">
+                                    <div class="bg-emerald-50/50 rounded-full px-4 py-1.5 inline-flex items-center gap-3 mb-4">
+                                        <span class="text-xs font-bold text-emerald-700">${s.nomor}:${a.nomorAyat}</span>
+                                        <button onclick="copyToClipboard('${a.teksArab}')" class="text-slate-400 hover:text-emerald-600 text-xs"><i class="fa-solid fa-copy"></i></button>
+                                    </div>
+                                    <p class="font-arabic-dynamic text-right text-slate-800 mb-4 leading-[2.5]" dir="rtl" style="margin-right: 2px;">${a.teksArab}</p>
+                                    <p class="font-translation-dynamic text-slate-500 leading-relaxed text-justify border-l-2 border-emerald-100 pl-4">${a.teksIndonesia}</p>
                                 </div>
-
-                                <!-- Arab -->
-                                <p class="font-arabic-dynamic text-right text-slate-800 mb-4 leading-[2.5]" dir="rtl" style="margin-right: 2px;">${a.teksArab}</p>
-                                
-                                <!-- Terjemah -->
-                                <p class="font-translation-dynamic text-slate-500 leading-relaxed text-justify border-l-2 border-emerald-100 pl-4">${a.teksIndonesia}</p>
-                            </div>
-                            <div class="h-px bg-slate-100 w-full my-6"></div>
-                        `).join('')}
+                                <div class="h-px bg-slate-100 w-full my-6"></div>
+                            `).join('')}
+                        </div>
                     </div>
+                    ${renderNav()}
                 </div>
-                ${renderNav()}
             `;
         }
 
@@ -649,23 +687,17 @@
             const total = item.count || 1;
             const current = item.currentCount !== undefined ? item.currentCount : total;
             
-            // Perhitungan Lingkaran
-            const radius = 40; // Diperkecil agar ikon tasbih tidak terlalu besar
+            const radius = 40;
             const circumference = radius * 2 * Math.PI;
             const offset = circumference - ((total - current) / total) * circumference;
 
             return `
-                <div class="flex flex-col h-full bg-slate-50">
+                <div class="flex flex-col h-full bg-slate-50" ontouchstart="handleTouchStart(event)" ontouchend="handleTouchEnd(event)">
                     ${renderHeader(item.title || 'Dzikir', { backBtn: "navigateTo('home')" })}
                     
-                    <!-- Progress Bar Top -->
-                    <div class="h-1 w-full bg-slate-100">
-                        <div class="h-full bg-emerald-500 transition-all duration-300" style="width: ${((AppState.index + 1) / data.length) * 100}%"></div>
-                    </div>
-
-                    <div class="flex-grow overflow-y-auto px-6 py-8 hide-scroll pb-40">
-                        <!-- Card Dzikir -->
-                        <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50 relative mb-8">
+                    <!-- Content Area -->
+                    <div class="flex-grow overflow-y-auto px-6 py-6 hide-scroll pb-40">
+                        <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50 relative mb-8 min-h-[50vh] flex flex-col justify-center">
                             <button onclick='toggleFav(${JSON.stringify(item).replace(/'/g, "&apos;")})' class="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full transition-colors ${isFav ? 'text-rose-500 bg-rose-50' : 'text-slate-300 hover:bg-slate-50'}">
                                 <i class="fa-solid fa-heart"></i>
                             </button>
@@ -689,62 +721,46 @@
                                     <p class="text-xs text-slate-600 leading-relaxed">${item.faedah}</p>
                                 </div>
                             ` : ''}
+                            
+                            <!-- Hint Swipe -->
+                            <div class="absolute bottom-4 left-0 right-0 text-center opacity-20 pointer-events-none">
+                                <p class="text-[10px] font-bold uppercase"><i class="fa-solid fa-left-right mr-1"></i> Geser</p>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- AREA TASBIH DIGITAL (FIXED BOTTOM) -->
-                    <div class="absolute bottom-24 left-0 right-0 flex flex-col items-center justify-end pb-4 z-20 pointer-events-none">
+                    <!-- AREA TASBIH DIGITAL (FIXED BOTTOM ABOVE NAV) -->
+                    <div class="absolute bottom-20 left-0 right-0 flex flex-col items-center justify-end pb-2 z-20 pointer-events-none">
                         
-                        <!-- Interaksi Tasbih: Klik atau Geser -->
                         <div id="tasbih-interaction-area" 
-                            class="pointer-events-auto relative w-24 h-48 flex flex-col items-center justify-end group cursor-grab active:cursor-grabbing"
-                            onclick="handleTasbihCount()"
-                            ontouchstart="handleTouchStart(event)" 
-                            ontouchend="handleTouchEnd(event)">
+                            class="pointer-events-auto relative w-24 h-48 flex flex-col items-center justify-end group cursor-grab active:cursor-grabbing mb-4"
+                            onclick="handleTasbihCount()">
                             
-                            <!-- Track Slider Visual -->
                             <div class="absolute top-0 bottom-0 w-1.5 bg-slate-200 rounded-full overflow-hidden">
                                 <div class="w-full bg-emerald-200 h-1/2 rounded-full"></div>
                             </div>
                             
-                            <!-- The Bead (Biji Tasbih) -->
                             <div id="tasbih-bead" class="relative z-10 w-16 h-16 rounded-[1.5rem] bg-emerald-600 shadow-xl shadow-emerald-300 flex items-center justify-center text-white mb-4 transition-transform active:scale-95">
                                 <i class="fa-solid fa-chevron-down text-lg opacity-50 animate-bounce"></i>
                             </div>
-
-                            <!-- Circular Progress Indicator (Smaller) -->
-                            <div class="absolute -top-12 opacity-0 group-hover:opacity-100 transition-opacity bg-white px-3 py-1 rounded-full shadow-sm border border-slate-100">
-                                <span class="text-xs font-bold text-emerald-600">Usap / Ketuk</span>
-                            </div>
                         </div>
 
-                        <!-- Counter Text Overlay -->
+                        <!-- Counter -->
                         <div class="absolute bottom-8 right-8 pointer-events-none">
-                            <div class="relative w-20 h-20 flex items-center justify-center">
-                                <svg class="progress-ring absolute inset-0 transform -rotate-90 w-full h-full p-1" width="80" height="80">
-                                    <circle class="text-slate-100" stroke="currentColor" stroke-width="6" fill="transparent" r="32" cx="50%" cy="50%" />
-                                    <circle class="progress-ring__circle text-emerald-500" stroke="currentColor" stroke-width="6" stroke-linecap="round" fill="white" r="32" cx="50%" cy="50%" 
+                            <div class="relative w-16 h-16 flex items-center justify-center">
+                                <svg class="progress-ring absolute inset-0 transform -rotate-90 w-full h-full p-1" width="64" height="64">
+                                    <circle class="text-slate-100" stroke="currentColor" stroke-width="6" fill="transparent" r="26" cx="50%" cy="50%" />
+                                    <circle class="progress-ring__circle text-emerald-500" stroke="currentColor" stroke-width="6" stroke-linecap="round" fill="white" r="26" cx="50%" cy="50%" 
                                         style="stroke-dasharray: ${circumference} ${circumference}; stroke-dashoffset: ${offset};" />
                                 </svg>
-                                <span id="counter-display" class="text-xl font-mono font-bold text-emerald-600 absolute">${current}</span>
+                                <span id="counter-display" class="text-lg font-mono font-bold text-emerald-600 absolute">${current}</span>
                             </div>
                         </div>
-
-                        ${current === 0 ? `
-                            <button onclick="resetTasbih()" class="pointer-events-auto absolute bottom-10 left-8 w-12 h-12 bg-white rounded-full shadow-lg text-emerald-600 flex items-center justify-center hover:bg-emerald-50">
+                         ${current === 0 ? `
+                            <button onclick="resetTasbih()" class="pointer-events-auto absolute bottom-10 left-8 w-12 h-12 bg-white rounded-full shadow-lg text-emerald-600 flex items-center justify-center hover:bg-emerald-50 z-30">
                                 <i class="fa-solid fa-rotate-right"></i>
                             </button>
                         ` : ''}
-                    </div>
-
-                    <!-- Navigasi Prev/Next -->
-                    <div class="glass-nav p-4 flex justify-between items-center z-30 border-t border-slate-100/50">
-                         <button onclick="AppState.index--; render()" ${AppState.index === 0 ? 'disabled' : ''} class="w-12 h-12 rounded-xl bg-slate-50 text-slate-400 disabled:opacity-20 flex items-center justify-center hover:bg-slate-100 transition-all"><i class="fa-solid fa-arrow-left"></i></button>
-                         <div class="flex flex-col items-center">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Halaman</span>
-                            <span class="text-sm font-bold text-slate-700">${AppState.index + 1} <span class="text-slate-300">/</span> ${data.length}</span>
-                         </div>
-                         <button onclick="AppState.index++; render()" ${AppState.index === data.length - 1 ? 'disabled' : ''} class="w-12 h-12 rounded-xl bg-emerald-600 text-white shadow-lg shadow-emerald-200 disabled:opacity-20 flex items-center justify-center hover:bg-emerald-700 transition-all"><i class="fa-solid fa-arrow-right"></i></button>
                     </div>
                 </div>
             `;
@@ -760,25 +776,20 @@
             const activeId = AppState.view === 'detail' ? 'home' : (AppState.view === 'quran-detail' ? 'quran' : AppState.view);
 
             return `
-                <div class="glass-nav absolute bottom-6 left-6 right-6 h-20 flex items-center justify-around px-2 z-40 rounded-[2rem] border border-white/50 shadow-2xl shadow-slate-200/50">
+                <div class="glass-nav fixed bottom-0 left-0 right-0 h-[72px] flex items-center justify-around z-50 md:absolute md:rounded-b-[2.5rem] md:border-t-0">
                     ${tabs.map(t => {
                         const isActive = activeId === t.id;
                         return `
                         <button onclick="navigateTo('${t.id}')" 
-                            class="relative flex flex-col items-center justify-center w-16 h-full group">
-                            <div class="absolute inset-x-0 top-0 h-1 bg-emerald-500 rounded-b-full transition-all duration-300 ${isActive ? 'w-8 mx-auto opacity-100' : 'w-0 opacity-0'}"></div>
-                            
-                            <div class="w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 ${isActive ? 'bg-emerald-50 text-emerald-600 translate-y-1' : 'text-slate-300 group-hover:text-emerald-400'}">
-                                <i class="fa-solid ${t.i} text-lg"></i>
-                            </div>
-                            <span class="text-[9px] font-bold tracking-wide mt-1 transition-colors duration-300 ${isActive ? 'text-emerald-600 translate-y-1' : 'text-slate-300 scale-0 h-0'}">${t.n}</span>
+                            class="flex flex-col items-center justify-center w-full h-full gap-1 ${isActive ? 'text-emerald-600' : 'text-slate-300 hover:text-slate-400'}">
+                            <i class="fa-solid ${t.i} text-xl mb-0.5 transition-transform ${isActive ? '-translate-y-1' : ''}"></i>
+                            <span class="text-[10px] font-bold tracking-wide ${isActive ? 'opacity-100' : 'opacity-0'} transition-opacity">${t.n}</span>
                         </button>
                     `}).join('')}
                 </div>
             `;
         }
 
-        // Jalankan Aplikasi
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
