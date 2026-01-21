@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#047857">
+    
+    <title>Dzikir & Doa Qurani</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Inter:wght@400;600;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        @font-face {
+            font-family: 'LPMQ Isep Misbah';
+            src: url('https://raw.githubusercontent.com/dawamie87/Zikir-dan-Doa-Qur-ani/main/LPMQ_IsepMisbah.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        :root {
+            --primary: #047857; 
+            --font-arabic: 'LPMQ Isep Misbah', 'Scheherazade New', serif;
+            --scale-arabic: 1;
+            --scale-translation: 1;
+        }
+
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s; }
+        
+        body.dark-mode { background-color: #0f172a; color: #f1f5f9; }
+        .dark-mode #app-root { background-color: #1e293b; border-color: #334155; }
+        .dark-mode .bg-white { background-color: #1e293b !important; }
+        .dark-mode .text-slate-800 { color: #f1f5f9 !important; }
+        .dark-mode .text-slate-600 { color: #cbd5e1 !important; }
+        .dark-mode .bg-slate-50 { background-color: #334155 !important; }
+        .dark-mode .border-slate-100 { border-color: #475569 !important; }
+        .dark-mode .bg-emerald-50 { background-color: #064e3b !important; color: #10b981 !important; }
+
+        .font-arabic-dynamic {
+            font-family: var(--font-arabic);
+            line-height: 2.3;
+            font-size: calc(2.0rem * var(--scale-arabic));
+        }
+
+        .font-translation-dynamic {
+            font-size: calc(0.875rem * var(--scale-translation));
+        }
+
+        @keyframes tap-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+        .tap-active { animation: tap-pulse 0.1s ease-out; }
+
+        .modal-transition { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .modal-open { transform: translateY(0) !important; }
+
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @media (min-width: 768px) {
+            body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background-color: #f1f5f9; }
+        }
+    </style>
+</head>
+<body class="light-mode">
+
+    <main id="app-root" class="w-full h-[100dvh] bg-white shadow-2xl overflow-hidden relative flex flex-col
+        md:h-[85vh] md:w-[450px] md:rounded-[2.5rem] md:border-8 md:border-white">
+    </main>
+
+    <!-- UI Components -->
+    <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-emerald-600 text-white px-5 py-3 rounded-full text-xs font-medium shadow-lg opacity-0 transition-all pointer-events-none z-50">
+        <span id="toast-msg"></span>
+    </div>
+
+    <div id="modal-overlay" onclick="closeModals()" class="fixed inset-0 bg-black/50 z-40 hidden opacity-0 transition-opacity"></div>
+
+    <!-- SETTINGS MODAL (Akses via Header) -->
+    <div id="settings-modal" class="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 p-6 transform translate-y-full modal-transition md:max-w-[450px] md:mx-auto">
+        <h3 class="text-lg font-bold mb-6 text-slate-800">Pengaturan Tampilan</h3>
+        <div class="space-y-6">
+            <div>
+                <label class="text-xs font-bold text-slate-400 uppercase block mb-2 tracking-wider">Ukuran Teks Arab</label>
+                <input type="range" min="0.8" max="1.8" step="0.1" value="1" id="scale-ar" class="w-full accent-emerald-600">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-slate-400 uppercase block mb-2 tracking-wider">Ukuran Terjemahan</label>
+                <input type="range" min="0.8" max="1.5" step="0.1" value="1" id="scale-tr" class="w-full accent-emerald-600">
+            </div>
+        </div>
+        <button onclick="closeModals()" class="w-full mt-8 py-4 bg-emerald-600 text-white rounded-2xl font-bold">Simpan</button>
+    </div>
+
+    <!-- SUPPORT MODAL -->
+    <div id="support-modal" class="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 p-8 transform translate-y-full modal-transition md:max-w-[450px] md:mx-auto text-center">
+        <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"><i class="fa-solid fa-mug-hot"></i></div>
+        <h3 class="text-xl font-bold text-slate-800 mb-2">Dukung Kami</h3>
+        <p class="text-sm text-slate-500 mb-6">Infaq untuk pengembangan aplikasi:</p>
+        <div class="bg-slate-50 border rounded-2xl p-4 mb-6">
+            <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">BCA</p>
+            <div class="flex items-center justify-center gap-3 mb-1">
+                <span class="text-xl font-mono font-bold text-slate-700">676030548</span>
+                <button onclick="copyToClipboard('676030548')" class="text-emerald-600"><i class="fa-solid fa-copy"></i></button>
+            </div>
+            <p class="text-xs font-medium text-slate-500">Ahmad Dawami</p>
+        </div>
+        <button onclick="closeModals()" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold">Tutup</button>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8J1hsT-Nb9eBOwDWkPG9Iff6d6Vb9lThA0RjIioCorPRpD3A5oYQ8fIjgXcjQ8J8fAw/exec";
+        const QURAN_API = "https://equran.id/api/v2/surat";
+        
+        let DB = { dzikirPagi: [], dzikirPetang: [], doaHarian: [], dzikirShalat: [], doaQurani: [], bacaanShalat: [] };
+        const AppState = { 
+            view: 'home', 
+            category: '', 
+            index: 0, 
+            search: '', 
+            darkMode: false,
+            prayerTimes: null,
+            location: 'Mencari lokasi...',
+            surahs: [],
+            currentSurah: null,
+            loading: false
+        };
+
+        function toggleDarkMode() {
+            AppState.darkMode = !AppState.darkMode;
+            document.body.classList.toggle('dark-mode', AppState.darkMode);
+            localStorage.setItem('dark-mode', AppState.darkMode);
+            render();
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            t.classList.replace('opacity-0', 'opacity-100');
+            setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 2000);
+        }
+
+        function copyToClipboard(text) {
+            const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+            showToast("Nomor rekening berhasil disalin");
+        }
+
+        function openModal(id) {
+            document.getElementById('modal-overlay').classList.remove('hidden');
+            setTimeout(() => document.getElementById('modal-overlay').classList.add('opacity-100'), 10);
+            document.getElementById(id).classList.add('modal-open');
+        }
+
+        function closeModals() {
+            document.getElementById('modal-overlay').classList.remove('opacity-100');
+            document.querySelectorAll('.modal-transition').forEach(m => m.classList.remove('modal-open'));
+            setTimeout(() => document.getElementById('modal-overlay').classList.add('hidden'), 300);
+        }
+
+        function handleTasbihTap() {
+            const data = AppState.view === 'fav' ? getFavs() : DB[AppState.category];
+            const item = data[AppState.index];
+            if (item.currentCount === undefined) item.currentCount = parseInt(item.count) || 1;
+            
+            if (item.currentCount > 0) {
+                item.currentCount--;
+                if (window.navigator.vibrate) window.navigator.vibrate(40);
+                const el = document.getElementById('arabic-container');
+                el.classList.add('tap-active');
+                setTimeout(() => el.classList.remove('tap-active'), 100);
+                render();
+            } else {
+                showToast("Sudah selesai");
+            }
+        }
+
+        function getFavs() { return JSON.parse(localStorage.getItem('dzikir_favs') || "[]"); }
+        function toggleFav(item) {
+            let favs = getFavs();
+            const exists = favs.some(f => f.arabic === item.arabic);
+            favs = exists ? favs.filter(f => f.arabic !== item.arabic) : [...favs, item];
+            localStorage.setItem('dzikir_favs', JSON.stringify(favs));
+            showToast(exists ? "Hapus Favorit" : "Simpan Favorit");
+            render();
+        }
+
+        async function fetchPrayerTimes() {
+            try {
+                navigator.geolocation.getCurrentPosition(async (pos) => {
+                    const { latitude, longitude } = pos.coords;
+                    const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=11`);
+                    const data = await res.json();
+                    AppState.prayerTimes = data.data.timings;
+                    AppState.location = data.data.meta.timezone;
+                    if (AppState.view === 'prayer') render();
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function fetchSurahs() {
+            if (AppState.surahs.length > 0) return;
+            AppState.loading = true;
+            try {
+                const res = await fetch(QURAN_API);
+                const data = await res.json();
+                AppState.surahs = data.data;
+            } catch (e) { console.error(e); }
+            AppState.loading = false;
+            if (AppState.view === 'quran') render();
+        }
+
+        async function fetchSurahDetail(nomor) {
+            AppState.loading = true;
+            render();
+            try {
+                const res = await fetch(`${QURAN_API}/${nomor}`);
+                const data = await res.json();
+                AppState.currentSurah = data.data;
+                AppState.view = 'quran-detail';
+            } catch (e) { console.error(e); }
+            AppState.loading = false;
+            render();
+        }
+
+        function render() {
+            const root = document.getElementById('app-root');
+            switch(AppState.view) {
+                case 'home': root.innerHTML = renderHome(); break;
+                case 'prayer': root.innerHTML = renderPrayer(); break;
+                case 'quran': root.innerHTML = renderQuran(); break;
+                case 'quran-detail': root.innerHTML = renderQuranDetail(); break;
+                default: root.innerHTML = renderDetail();
+            }
+        }
+
+        function renderHeader(title) {
+            return `
+                <div class="bg-white px-6 py-4 flex items-center justify-between border-b border-slate-100 z-10">
+                    <div class="flex items-center gap-3">
+                        ${AppState.view !== 'home' && AppState.view !== 'prayer' && AppState.view !== 'quran' ? 
+                            `<button onclick="AppState.view = (AppState.view==='quran-detail' ? 'quran' : 'home'); render()" class="text-slate-400"><i class="fa-solid fa-chevron-left"></i></button>` : ''}
+                        <h2 class="text-sm font-bold text-slate-800">${title}</h2>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="toggleDarkMode()" class="text-slate-400 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-50">
+                            <i class="fa-solid ${AppState.darkMode ? 'fa-sun' : 'fa-moon'}"></i>
+                        </button>
+                        <button onclick="openModal('settings-modal')" class="text-emerald-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-emerald-50">
+                            <i class="fa-solid fa-gear"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderHome() {
+            const hours = new Date().getHours();
+            const greeting = hours < 11 ? "Pagi" : hours < 15 ? "Siang" : hours < 19 ? "Sore" : "Malam";
+            const cats = [
+                { id: 'dzikirPagi', n: 'Dzikir Pagi', i: 'fa-sun' },
+                { id: 'dzikirPetang', n: 'Dzikir Petang', i: 'fa-moon' },
+                { id: 'doaQurani', n: 'Doa Qurani', i: 'fa-quran' },
+                { id: 'doaHarian', n: 'Doa Harian', i: 'fa-hands-praying' },
+                { id: 'dzikirShalat', n: 'Dzikir Shalat', i: 'fa-mosque' },
+                { id: 'bacaanShalat', n: 'Bacaan Shalat', i: 'fa-book-open' }
+            ].filter(c => c.n.toLowerCase().includes(AppState.search.toLowerCase()));
+
+            return `
+                <div class="flex-grow overflow-y-auto px-6 pt-8 pb-24">
+                    <div class="flex justify-between items-start mb-8">
+                        <div>
+                            <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-[0.2em] mb-1">Selamat ${greeting}</p>
+                            <h1 class="text-2xl font-bold text-slate-800">Dzikir & Doa</h1>
+                        </div>
+                        <button onclick="openModal('support-modal')" class="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-sm border border-amber-100">
+                            <i class="fa-solid fa-mug-hot"></i>
+                        </button>
+                    </div>
+
+                    <div class="relative mb-8">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                        <input type="text" placeholder="Cari dzikir..." oninput="AppState.search = this.value; render()" value="${AppState.search}"
+                            class="w-full bg-slate-50 border-none rounded-2xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-emerald-500 transition-all">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        ${cats.map(c => `
+                            <button onclick="AppState.view='detail'; AppState.category='${c.id}'; AppState.index=0; render()"
+                                class="bg-white border border-slate-100 p-5 rounded-[2rem] shadow-sm flex flex-col items-center gap-3 active:scale-95 transition-transform">
+                                <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg"><i class="fa-solid ${c.i}"></i></div>
+                                <span class="text-xs font-bold text-slate-700">${c.n}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+                ${renderNav('home')}
+            `;
+        }
+
+        function renderPrayer() {
+            const times = AppState.prayerTimes;
+            const list = times ? [
+                { n: 'Subuh', t: times.Fajr, i: 'fa-cloud-sun' },
+                { n: 'Dzuhur', t: times.Dhuhr, i: 'fa-sun' },
+                { n: 'Ashar', t: times.Asr, i: 'fa-cloud' },
+                { n: 'Maghrib', t: times.Maghrib, i: 'fa-cloud-moon' },
+                { n: 'Isya', t: times.Isha, i: 'fa-moon' }
+            ] : [];
+
+            return `
+                ${renderHeader('Jadwal Shalat')}
+                <div class="flex-grow overflow-y-auto px-6 pt-6 pb-24 bg-slate-50">
+                    <div class="bg-emerald-600 rounded-[2.5rem] p-8 text-white mb-6 relative overflow-hidden">
+                        <i class="fa-solid fa-mosque absolute -right-4 -bottom-4 text-8xl opacity-10"></i>
+                        <p class="text-[10px] font-bold uppercase opacity-80 tracking-widest mb-1">Lokasi Anda</p>
+                        <h3 class="text-xl font-bold mb-4">${AppState.location.split('/')[1] || 'Indonesia'}</h3>
+                        <p class="text-xs opacity-80">${new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        ${times ? list.map(p => `
+                            <div class="bg-white p-5 rounded-3xl flex justify-between items-center border border-slate-100">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm"><i class="fa-solid ${p.i}"></i></div>
+                                    <span class="font-bold text-slate-700">${p.n}</span>
+                                </div>
+                                <span class="text-lg font-mono font-bold text-emerald-600">${p.t}</span>
+                            </div>
+                        `).join('') : `<div class="p-10 text-center animate-pulse text-slate-400">Memuat jadwal...</div>`}
+                    </div>
+                </div>
+                ${renderNav('prayer')}
+            `;
+        }
+
+        function renderQuran() {
+            const filtered = AppState.surahs.filter(s => s.namaLatin.toLowerCase().includes(AppState.search.toLowerCase()));
+            
+            return `
+                ${renderHeader('Al-Qur\'an Digital')}
+                <div class="flex-grow overflow-y-auto bg-slate-50 flex flex-col">
+                    <div class="p-6">
+                        <div class="relative mb-4">
+                            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                            <input type="text" placeholder="Cari Surah..." oninput="AppState.search = this.value; render()" value="${AppState.search}"
+                                class="w-full bg-white border border-slate-100 rounded-2xl py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-emerald-500 shadow-sm">
+                        </div>
+                    </div>
+
+                    <div class="px-6 pb-24 space-y-3">
+                        ${AppState.loading ? `<div class="p-10 text-center text-slate-400">Memuat daftar surah...</div>` :
+                            filtered.map(s => `
+                            <button onclick="fetchSurahDetail(${s.nomor})" class="w-full bg-white p-4 rounded-2xl flex items-center gap-4 border border-slate-100 shadow-sm active:scale-95 transition-transform text-left">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs">${s.nomor}</div>
+                                <div class="flex-grow">
+                                    <p class="font-bold text-slate-800 text-sm">${s.namaLatin}</p>
+                                    <p class="text-[10px] text-slate-400 font-medium uppercase">${s.tempatTurun} • ${s.jumlahAyat} Ayat</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-arabic text-xl text-emerald-600" dir="rtl">${s.nama}</p>
+                                </div>
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+                ${renderNav('quran')}
+            `;
+        }
+
+        function renderQuranDetail() {
+            const s = AppState.currentSurah;
+            if (AppState.loading) return `<div class="h-full flex flex-col items-center justify-center p-20 gap-4"><div class="w-10 h-10 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin"></div><p class="text-sm text-slate-400">Memuat Ayat...</p></div>`;
+
+            return `
+                ${renderHeader(s.namaLatin)}
+                <div class="flex-grow overflow-y-auto px-6 py-6 pb-24 bg-slate-50">
+                    <div class="bg-emerald-600 rounded-[2.5rem] p-8 text-white mb-8 text-center relative overflow-hidden">
+                        <p class="font-arabic text-4xl mb-2">${s.nama}</p>
+                        <p class="text-sm opacity-80">${s.arti} • ${s.jumlahAyat} Ayat</p>
+                        <div class="mt-4 pt-4 border-t border-white/20">
+                            <p class="font-arabic text-xl">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        ${s.ayat.map(a => `
+                            <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
+                                <div class="flex justify-between items-start mb-6">
+                                    <span class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center text-[10px] font-bold border border-slate-100">${a.nomorAyat}</span>
+                                    <div class="flex gap-2">
+                                         <button onclick="copyToClipboard('${a.teksArab}')" class="text-slate-200"><i class="fa-solid fa-copy"></i></button>
+                                    </div>
+                                </div>
+                                <p class="font-arabic-dynamic text-right text-slate-800 mb-4" dir="rtl">${a.teksArab}</p>
+                                <p class="font-translation-dynamic text-slate-500 leading-relaxed">${a.teksIndonesia}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ${renderNav('quran')}
+            `;
+        }
+
+        function renderDetail() {
+            const data = AppState.view === 'fav' ? getFavs() : DB[AppState.category];
+            if (!data || data.length === 0) return `<div class="p-20 text-center"><p class="text-slate-400 mb-4">Kosong</p><button onclick="AppState.view='home'; render()" class="text-emerald-600 font-bold">Kembali</button></div>`;
+            
+            const item = data[AppState.index];
+            const isFav = getFavs().some(f => f.arabic === item.arabic);
+            const remaining = item.currentCount !== undefined ? item.currentCount : (parseInt(item.count) || 1);
+
+            return `
+                <div class="flex flex-col h-full bg-slate-50">
+                    ${renderHeader(item.title || 'Dzikir')}
+                    <div class="h-1 w-full bg-slate-200">
+                        <div class="h-full bg-emerald-500 transition-all duration-300" style="width: ${((AppState.index + 1) / data.length) * 100}%"></div>
+                    </div>
+                    <div class="flex-grow overflow-y-auto px-6 py-8">
+                        <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 flex flex-col items-center relative mb-4">
+                            <button onclick='toggleFav(${JSON.stringify(item).replace(/'/g, "&apos;")})' class="absolute top-6 right-6 ${isFav ? 'text-rose-500' : 'text-slate-200'}">
+                                <i class="fa-solid fa-heart text-xl"></i>
+                            </button>
+                            <div class="text-center mb-8"><span class="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-bold uppercase tracking-wider">Baca ${item.count || 1}x</span></div>
+                            <div id="arabic-container" onclick="handleTasbihTap()" class="w-full mb-10 cursor-pointer select-none active:opacity-70" dir="rtl">
+                                <p class="font-arabic-dynamic text-center text-slate-800">${item.arabic}</p>
+                            </div>
+                            <div class="w-full space-y-4 text-center">
+                                ${item.latin ? `<p class="text-sm text-emerald-600/80 italic font-medium">${item.latin}</p>` : ''}
+                                <p class="font-translation-dynamic text-slate-500 leading-relaxed">${item.translation || ''}</p>
+                            </div>
+                            ${item.faedah ? `<div class="mt-8 p-4 bg-amber-50 rounded-2xl border border-amber-100 text-left w-full"><p class="text-[9px] font-bold text-amber-600 uppercase mb-1 tracking-widest">Faedah</p><p class="text-[11px] text-amber-800 italic leading-relaxed">${item.faedah}</p></div>` : ''}
+                            <div class="mt-10 flex flex-col items-center">
+                                <div class="w-14 h-14 rounded-full border-4 border-emerald-100 flex items-center justify-center text-lg font-bold text-emerald-600">${remaining}</div>
+                                <p class="text-[9px] font-bold text-slate-300 uppercase mt-2 tracking-widest">Sisa</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 flex justify-between items-center border-t border-slate-100">
+                        <button onclick="AppState.index--; render()" ${AppState.index === 0 ? 'disabled' : ''} class="w-12 h-12 rounded-full bg-slate-50 text-slate-400 disabled:opacity-20"><i class="fa-solid fa-arrow-left"></i></button>
+                        <span class="text-xs font-bold text-slate-400">${AppState.index + 1} / ${data.length}</span>
+                        <button onclick="AppState.index++; render()" ${AppState.index === data.length - 1 ? 'disabled' : ''} class="w-12 h-12 rounded-full bg-emerald-600 text-white shadow-lg disabled:opacity-20"><i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </div>
+                ${renderNav('detail')}
+            `;
+        }
+
+        function renderNav(active) {
+            const tabs = [
+                { id: 'home', i: 'fa-house', n: 'Beranda' },
+                { id: 'quran', i: 'fa-book-quran', n: 'Qur\'an' },
+                { id: 'prayer', i: 'fa-clock', n: 'Waktu' },
+                { id: 'fav', i: 'fa-heart', n: 'Favorit' }
+            ];
+            return `
+                <div class="absolute bottom-0 left-0 right-0 h-20 bg-white border-t border-slate-100 flex items-center justify-around px-4 z-30">
+                    ${tabs.map(t => `
+                        <button onclick="AppState.view='${t.id}'; AppState.index=0; AppState.search=''; if('${t.id}'==='quran') fetchSurahs(); render()" 
+                            class="flex flex-col items-center gap-1 w-1/4 ${AppState.view.includes(t.id)?'text-emerald-600':'text-slate-300'}">
+                            <i class="fa-solid ${t.i} text-lg"></i>
+                            <span class="text-[9px] font-bold uppercase tracking-tighter">${t.n}</span>
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        async function fetchData() {
+            try {
+                const res = await fetch(SCRIPT_URL);
+                const json = await res.json();
+                const map = { 'judul': 'title', 'arab': 'arabic', 'teks': 'arabic', 'latin': 'latin', 'terjemah': 'translation', 'jumlah': 'count', 'faedah': 'faedah' };
+                Object.keys(json).forEach(k => {
+                    DB[k] = json[k].map(i => {
+                        const n = {}; Object.keys(i).forEach(key => n[map[key.toLowerCase()] || key.toLowerCase()] = i[key]);
+                        return n;
+                    });
+                });
+                render();
+            } catch (e) { console.error(e); }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedDark = localStorage.getItem('dark-mode') === 'true';
+            if(savedDark) { AppState.darkMode = true; document.body.classList.add('dark-mode'); }
+            
+            document.getElementById('scale-ar').addEventListener('input', e => document.documentElement.style.setProperty('--scale-arabic', e.target.value));
+            document.getElementById('scale-tr').addEventListener('input', e => document.documentElement.style.setProperty('--scale-translation', e.target.value));
+
+            fetchData();
+            fetchPrayerTimes();
+            render();
+        });
+    </script>
+</body>
+</html>
